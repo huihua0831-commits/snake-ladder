@@ -137,19 +137,13 @@ max-width:400px;
 
 </div>
 
-
 <div class="modal" id="taskModal">
 <div class="modal-content">
-
-<h3>任務</h3>
-
+<h3 id="taskTitle">任務</h3>
 <p id="taskText"></p>
-
 <button onclick="closeTask()">完成</button>
-
 </div>
 </div>
-
 
 <script>
 
@@ -163,6 +157,14 @@ grid.appendChild(cell)
 
 const cells=document.querySelectorAll(".cell")
 
+const boardOrder=[
+1,2,3,4,5,
+10,9,8,7,6,
+11,12,13,14,15,
+20,19,18,17,16,
+21,22,23,24,25
+]
+
 const players=[
 {pos:1,color:"p1"},
 {pos:1,color:"p2"},
@@ -172,30 +174,40 @@ const players=[
 
 let currentPlayer=0
 
+const snakes={
+16:5,
+18:11
+}
+
+const ladders={
+3:14,
+7:21
+}
+
 const tasks={
 2:"請說：事故是在哪裡發生的？",
-3:"用「發生」造句",
-4:"請問對方：你是什麼時候看到事故的？",
-5:"回答：事故大約是幾點發生？",
-6:"用「記錄」說一句話",
-7:"請問：當時天氣怎麼樣？",
-8:"用「事故」造句",
-9:"請描述事故經過",
-10:"請問對方：有沒有受傷？",
-11:"用「警察」造句",
-12:"請說：我需要做筆錄",
-13:"描述當時的情況",
-14:"問對方：你看到什麼？",
-15:"說一句完整的事故句子",
-16:"用「地點」造句",
-17:"描述事故發生的時間",
-18:"請說一句完整報告",
-19:"問對方是否需要幫助",
-20:"請說事故經過",
-21:"請問事故在哪條路",
-22:"描述事故現場",
-23:"用「報告」造句",
-24:"說一句完整描述"
+3:"請描述事故發生的時間。",
+4:"用「發生」造句。",
+5:"回答：事故大約幾點發生？",
+6:"用「記錄」說一句話。",
+7:"請問對方：事故在哪裡發生？",
+8:"用「事故」造句。",
+9:"請描述事故經過。",
+10:"請問：有沒有人受傷？",
+11:"用「警察」造句。",
+12:"請說：我需要做筆錄。",
+13:"描述事故現場。",
+14:"請問：你看到什麼？",
+15:"說一句完整事故句子。",
+16:"用「地點」造句。",
+17:"描述事故時間。",
+18:"請做一個簡短報告。",
+19:"請問對方是否需要幫助。",
+20:"說一句事故描述。",
+21:"請問事故在哪條路？",
+22:"描述事故現場情況。",
+23:"用「報告」造句。",
+24:"說一句完整描述。"
 }
 
 function renderTokens(){
@@ -208,7 +220,9 @@ const token=document.createElement("div")
 
 token.className="token "+p.color
 
-cells[p.pos-1].appendChild(token)
+const index=boardOrder.indexOf(p.pos)
+
+cells[index].appendChild(token)
 
 })
 
@@ -221,9 +235,7 @@ function updateStatus(){
 let text=""
 
 players.forEach((p,i)=>{
-
 text+=`玩家${i+1}：第 ${p.pos} 格<br>`
-
 })
 
 document.getElementById("status").innerHTML=text
@@ -242,6 +254,8 @@ p.pos+=dice
 
 if(p.pos>25)p.pos=25
 
+checkSnakeOrLadder(p)
+
 renderTokens()
 
 showTask(p.pos)
@@ -249,6 +263,20 @@ showTask(p.pos)
 currentPlayer=(currentPlayer+1)%players.length
 
 document.getElementById("playerTurn").innerText="玩家"+(currentPlayer+1)
+
+}
+
+function checkSnakeOrLadder(player){
+
+if(snakes[player.pos]){
+player.pos=snakes[player.pos]
+alert("🐍 踩到蛇，滑下去！")
+}
+
+if(ladders[player.pos]){
+player.pos=ladders[player.pos]
+alert("🪜 爬上梯子！")
+}
 
 }
 
@@ -265,9 +293,7 @@ document.getElementById("taskModal").style.visibility="visible"
 }
 
 function closeTask(){
-
 document.getElementById("taskModal").style.visibility="hidden"
-
 }
 
 function resetGame(){
