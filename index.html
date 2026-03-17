@@ -19,28 +19,34 @@ gap:40px;
 margin-top:20px;
 }
 
+.board-wrapper{
+position:relative;
+width:400px;
+height:400px;
+}
+
 .board{
 display:grid;
-grid-template-columns:repeat(5,80px);
-grid-template-rows:repeat(5,80px);
-gap:2px;
-background:#333;
-padding:2px;
+grid-template-columns:repeat(5,1fr);
+grid-template-rows:repeat(5,1fr);
+width:100%;
+height:100%;
 }
 
 .cell{
-background:white;
-position:relative;
+border:2px solid #444;
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:18px;
 font-weight:bold;
+font-size:18px;
+position:relative;
+background:white;
 }
 
 .token{
-width:22px;
-height:22px;
+width:20px;
+height:20px;
 border-radius:50%;
 position:absolute;
 bottom:6px;
@@ -52,6 +58,13 @@ border:2px solid white;
 .p2{background:blue}
 .p3{background:green}
 .p4{background:orange}
+
+.overlay{
+position:absolute;
+top:0;
+left:0;
+pointer-events:none;
+}
 
 .panel{
 width:260px;
@@ -105,7 +118,34 @@ max-width:400px;
 
 <div class="container">
 
+<div class="board-wrapper">
+
 <div id="board" class="board"></div>
+
+<!-- SVG 蛇梯 -->
+<svg class="overlay" width="400" height="400">
+
+<!-- 梯子 3→14 -->
+<line x1="120" y1="340" x2="220" y2="240" stroke="brown" stroke-width="6"/>
+<line x1="140" y1="350" x2="240" y2="250" stroke="brown" stroke-width="6"/>
+
+<!-- 梯子橫槓 -->
+<line x1="130" y1="330" x2="230" y2="230" stroke="brown" stroke-width="4"/>
+<line x1="145" y1="305" x2="245" y2="205" stroke="brown" stroke-width="4"/>
+
+<!-- 蛇 16→5 -->
+<path d="
+M300 120
+C250 160,350 200,300 240
+C250 280,350 320,300 360
+"
+stroke="green"
+stroke-width="10"
+fill="none"/>
+
+</svg>
+
+</div>
 
 <div class="panel">
 
@@ -144,17 +184,11 @@ const boardOrder=[
 ]
 
 boardOrder.forEach(num=>{
-
 const cell=document.createElement("div")
-
 cell.className="cell"
-
 cell.innerText=num
-
 cell.dataset.num=num
-
 board.appendChild(cell)
-
 })
 
 const cells=document.querySelectorAll(".cell")
@@ -169,37 +203,35 @@ const players=[
 let currentPlayer=0
 
 const snakes={
-16:5,
-18:11
+16:5
 }
 
 const ladders={
-3:14,
-7:21
+3:14
 }
 
 const tasks={
-2:"請說：事故是在哪裡發生的？",
-3:"描述事故發生的時間。",
+2:"事故是在哪裡發生的？",
+3:"描述事故時間。",
 4:"用「發生」造句。",
 5:"事故大約幾點發生？",
-6:"用「記錄」說一句話。",
-7:"問對方：事故在哪裡發生？",
+6:"用「記錄」造句。",
+7:"事故在哪條路發生？",
 8:"用「事故」造句。",
 9:"描述事故經過。",
 10:"有沒有人受傷？",
 11:"用「警察」造句。",
-12:"請說：我需要做筆錄。",
+12:"我需要做筆錄。",
 13:"描述事故現場。",
-14:"問對方：你看到什麼？",
-15:"說一句完整事故句。",
+14:"你看到什麼？",
+15:"說一句事故句。",
 16:"用「地點」造句。",
 17:"描述事故時間。",
 18:"做一個簡短報告。",
-19:"問對方是否需要幫助。",
+19:"是否需要幫助？",
 20:"說一句事故描述。",
 21:"事故在哪條路？",
-22:"描述事故現場情況。",
+22:"描述事故現場。",
 23:"用「報告」造句。",
 24:"說一句完整描述。"
 }
@@ -207,19 +239,15 @@ const tasks={
 function renderTokens(){
 
 cells.forEach(c=>{
-
 c.querySelectorAll(".token").forEach(t=>t.remove())
-
 })
 
 players.forEach((p,i)=>{
 
 const token=document.createElement("div")
-
 token.className="token "+p.color
 
 const cell=[...cells].find(c=>c.dataset.num==p.pos)
-
 cell.appendChild(token)
 
 })
@@ -233,9 +261,7 @@ function updateStatus(){
 let text=""
 
 players.forEach((p,i)=>{
-
 text+=`玩家${i+1}：第 ${p.pos} 格<br>`
-
 })
 
 document.getElementById("status").innerHTML=text
@@ -245,7 +271,6 @@ document.getElementById("status").innerHTML=text
 function rollDice(){
 
 const dice=Math.floor(Math.random()*6)+1
-
 document.getElementById("dice").innerText=dice
 
 let p=players[currentPlayer]
@@ -273,19 +298,13 @@ document.getElementById("playerTurn").innerText="玩家"+(currentPlayer+1)
 function checkSnakeOrLadder(player){
 
 if(snakes[player.pos]){
-
+alert("🐍 踩到蛇！")
 player.pos=snakes[player.pos]
-
-alert("🐍 踩到蛇，滑下去！")
-
 }
 
 if(ladders[player.pos]){
-
-player.pos=ladders[player.pos]
-
 alert("🪜 爬上梯子！")
-
+player.pos=ladders[player.pos]
 }
 
 }
@@ -303,17 +322,13 @@ document.getElementById("taskModal").style.visibility="visible"
 }
 
 function closeTask(){
-
 document.getElementById("taskModal").style.visibility="hidden"
-
 }
 
 function resetGame(){
 
 players.forEach(p=>p.pos=1)
-
 currentPlayer=0
-
 renderTokens()
 
 }
