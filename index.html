@@ -2,35 +2,23 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<title>警察做筆錄蛇梯遊戲</title>
+<title>職場華語（二）紀錄與報告任務蛇梯遊戲</title>
 
 <style>
 
 body{
 font-family:Arial;
-background:#eef2f7;
 text-align:center;
-}
-
-.container{
-display:flex;
-justify-content:center;
-gap:40px;
-margin-top:20px;
-}
-
-.board-wrapper{
-position:relative;
-width:400px;
-height:400px;
+background:#eef2f7;
 }
 
 .board{
 display:grid;
-grid-template-columns:repeat(5,1fr);
-grid-template-rows:repeat(5,1fr);
-width:100%;
-height:100%;
+grid-template-columns:repeat(5,80px);
+grid-template-rows:repeat(5,80px);
+gap:4px;
+justify-content:center;
+margin:30px auto;
 }
 
 .cell{
@@ -38,75 +26,20 @@ border:2px solid #444;
 display:flex;
 align-items:center;
 justify-content:center;
+flex-direction:column;
 font-weight:bold;
+background:white;
 font-size:18px;
-position:relative;
-background:white;
-}
-
-.token{
-width:20px;
-height:20px;
-border-radius:50%;
-position:absolute;
-bottom:6px;
-right:6px;
-border:2px solid white;
-}
-
-.p1{background:red}
-.p2{background:blue}
-.p3{background:green}
-.p4{background:orange}
-
-.overlay{
-position:absolute;
-top:0;
-left:0;
-pointer-events:none;
-}
-
-.panel{
-width:260px;
-background:white;
-padding:20px;
-border-radius:10px;
-box-shadow:0 4px 10px rgba(0,0,0,0.1);
-text-align:left;
 }
 
 button{
 padding:10px 16px;
+margin:10px;
 border:none;
 border-radius:6px;
 background:#3b82f6;
 color:white;
 cursor:pointer;
-margin-top:10px;
-}
-
-button:hover{
-background:#2563eb;
-}
-
-.modal{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.4);
-display:flex;
-align-items:center;
-justify-content:center;
-visibility:hidden;
-}
-
-.modal-content{
-background:white;
-padding:30px;
-border-radius:10px;
-max-width:400px;
 }
 
 </style>
@@ -114,93 +47,28 @@ max-width:400px;
 
 <body>
 
-<h2>警察做筆錄蛇梯遊戲</h2>
-
-<div class="container">
-
-<div class="board-wrapper">
+<h2>職場華語（二）紀錄與報告任務蛇梯遊戲</h2>
 
 <div id="board" class="board"></div>
 
-<!-- SVG 蛇梯 -->
-<svg class="overlay" width="400" height="400">
-
-<!-- 梯子 3→14 -->
-<line x1="120" y1="340" x2="220" y2="240" stroke="brown" stroke-width="6"/>
-<line x1="140" y1="350" x2="240" y2="250" stroke="brown" stroke-width="6"/>
-
-<!-- 梯子橫槓 -->
-<line x1="130" y1="330" x2="230" y2="230" stroke="brown" stroke-width="4"/>
-<line x1="145" y1="305" x2="245" y2="205" stroke="brown" stroke-width="4"/>
-
-<!-- 蛇 16→5 -->
-<path d="
-M300 120
-C250 160,350 200,300 240
-C250 280,350 320,300 360
-"
-stroke="green"
-stroke-width="10"
-fill="none"/>
-
-</svg>
-
-</div>
-
-<div class="panel">
-
-<div>現在輪到： <b id="playerTurn">玩家1</b></div>
-
-<p>骰子： <span id="dice">-</span></p>
+<p>骰子：<span id="dice">-</span></p>
 
 <button onclick="rollDice()">擲骰子</button>
 <button onclick="resetGame()">重新開始</button>
 
-<h3>玩家位置</h3>
-<div id="status"></div>
-
-</div>
-
-</div>
-
-<div class="modal" id="taskModal">
-<div class="modal-content">
-<h3>任務</h3>
-<p id="taskText"></p>
-<button onclick="closeTask()">完成</button>
-</div>
-</div>
+<p id="status"></p>
 
 <script>
 
 const board=document.getElementById("board")
 
-const boardOrder=[
+const order=[
 21,22,23,24,25,
 20,19,18,17,16,
 11,12,13,14,15,
 10,9,8,7,6,
 1,2,3,4,5
 ]
-
-boardOrder.forEach(num=>{
-const cell=document.createElement("div")
-cell.className="cell"
-cell.innerText=num
-cell.dataset.num=num
-board.appendChild(cell)
-})
-
-const cells=document.querySelectorAll(".cell")
-
-const players=[
-{pos:1,color:"p1"},
-{pos:1,color:"p2"},
-{pos:1,color:"p3"},
-{pos:1,color:"p4"}
-]
-
-let currentPlayer=0
 
 const snakes={
 16:5
@@ -210,130 +78,79 @@ const ladders={
 3:14
 }
 
-const tasks={
-2:"事故是在哪裡發生的？",
-3:"描述事故時間。",
-4:"用「發生」造句。",
-5:"事故大約幾點發生？",
-6:"用「記錄」造句。",
-7:"事故在哪條路發生？",
-8:"用「事故」造句。",
-9:"描述事故經過。",
-10:"有沒有人受傷？",
-11:"用「警察」造句。",
-12:"我需要做筆錄。",
-13:"描述事故現場。",
-14:"你看到什麼？",
-15:"說一句事故句。",
-16:"用「地點」造句。",
-17:"描述事故時間。",
-18:"做一個簡短報告。",
-19:"是否需要幫助？",
-20:"說一句事故描述。",
-21:"事故在哪條路？",
-22:"描述事故現場。",
-23:"用「報告」造句。",
-24:"說一句完整描述。"
-}
+order.forEach(num=>{
 
-function renderTokens(){
+const cell=document.createElement("div")
+cell.className="cell"
 
-cells.forEach(c=>{
-c.querySelectorAll(".token").forEach(t=>t.remove())
-})
+let icon=""
 
-players.forEach((p,i)=>{
+if(snakes[num]) icon="🐍"
+if(ladders[num]) icon="🪜"
 
-const token=document.createElement("div")
-token.className="token "+p.color
+cell.innerHTML=num+"<div>"+icon+"</div>"
 
-const cell=[...cells].find(c=>c.dataset.num==p.pos)
-cell.appendChild(token)
+cell.dataset.num=num
+
+board.appendChild(cell)
 
 })
 
-updateStatus()
+const cells=document.querySelectorAll(".cell")
 
-}
-
-function updateStatus(){
-
-let text=""
-
-players.forEach((p,i)=>{
-text+=`玩家${i+1}：第 ${p.pos} 格<br>`
-})
-
-document.getElementById("status").innerHTML=text
-
-}
+let position=1
 
 function rollDice(){
 
 const dice=Math.floor(Math.random()*6)+1
+
 document.getElementById("dice").innerText=dice
 
-let p=players[currentPlayer]
+position+=dice
 
-p.pos+=dice
+if(position>25) position=25
 
-if(p.pos>25)p.pos=25
-
-checkSnakeOrLadder(p)
-
-renderTokens()
-
-showTask(p.pos)
-
-if(p.pos==25){
-alert("玩家"+(currentPlayer+1)+"獲勝！")
-}
-
-currentPlayer=(currentPlayer+1)%players.length
-
-document.getElementById("playerTurn").innerText="玩家"+(currentPlayer+1)
-
-}
-
-function checkSnakeOrLadder(player){
-
-if(snakes[player.pos]){
+if(snakes[position]){
 alert("🐍 踩到蛇！")
-player.pos=snakes[player.pos]
+position=snakes[position]
 }
 
-if(ladders[player.pos]){
+if(ladders[position]){
 alert("🪜 爬上梯子！")
-player.pos=ladders[player.pos]
+position=ladders[position]
+}
+
+update()
+
+if(position==25){
+alert("完成任務！")
 }
 
 }
 
-function showTask(pos){
+function update(){
 
-if(tasks[pos]){
+cells.forEach(c=>{
+c.style.background="white"
+})
 
-document.getElementById("taskText").innerText=tasks[pos]
+const cell=[...cells].find(c=>c.dataset.num==position)
 
-document.getElementById("taskModal").style.visibility="visible"
+cell.style.background="#fde68a"
 
-}
+document.getElementById("status").innerText="目前位置："+position
 
-}
-
-function closeTask(){
-document.getElementById("taskModal").style.visibility="hidden"
 }
 
 function resetGame(){
 
-players.forEach(p=>p.pos=1)
-currentPlayer=0
-renderTokens()
+position=1
+
+update()
 
 }
 
-renderTokens()
+update()
 
 </script>
 
