@@ -20,39 +20,32 @@ margin-top:20px;
 }
 
 .board{
-position:relative;
-width:500px;
-height:500px;
-}
-
-.board img{
-position:absolute;
-width:100%;
-height:100%;
-}
-
-.grid{
-position:absolute;
-width:100%;
-height:100%;
 display:grid;
-grid-template-columns:repeat(5,1fr);
-grid-template-rows:repeat(5,1fr);
+grid-template-columns:repeat(5,80px);
+grid-template-rows:repeat(5,80px);
+gap:2px;
+background:#333;
+padding:2px;
 }
 
 .cell{
+background:white;
 position:relative;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:18px;
+font-weight:bold;
 }
 
 .token{
-width:26px;
-height:26px;
+width:22px;
+height:22px;
 border-radius:50%;
-border:3px solid white;
 position:absolute;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
+bottom:6px;
+right:6px;
+border:2px solid white;
 }
 
 .p1{background:red}
@@ -112,13 +105,7 @@ max-width:400px;
 
 <div class="container">
 
-<div class="board">
-
-<img src="board.png">
-
-<div class="grid" id="grid"></div>
-
-</div>
+<div id="board" class="board"></div>
 
 <div class="panel">
 
@@ -130,7 +117,6 @@ max-width:400px;
 <button onclick="resetGame()">重新開始</button>
 
 <h3>玩家位置</h3>
-
 <div id="status"></div>
 
 </div>
@@ -139,7 +125,7 @@ max-width:400px;
 
 <div class="modal" id="taskModal">
 <div class="modal-content">
-<h3 id="taskTitle">任務</h3>
+<h3>任務</h3>
 <p id="taskText"></p>
 <button onclick="closeTask()">完成</button>
 </div>
@@ -147,23 +133,31 @@ max-width:400px;
 
 <script>
 
-const grid=document.getElementById("grid")
-
-for(let i=0;i<25;i++){
-const cell=document.createElement("div")
-cell.className="cell"
-grid.appendChild(cell)
-}
-
-const cells=document.querySelectorAll(".cell")
+const board=document.getElementById("board")
 
 const boardOrder=[
-1,2,3,4,5,
-10,9,8,7,6,
-11,12,13,14,15,
+21,22,23,24,25,
 20,19,18,17,16,
-21,22,23,24,25
+11,12,13,14,15,
+10,9,8,7,6,
+1,2,3,4,5
 ]
+
+boardOrder.forEach(num=>{
+
+const cell=document.createElement("div")
+
+cell.className="cell"
+
+cell.innerText=num
+
+cell.dataset.num=num
+
+board.appendChild(cell)
+
+})
+
+const cells=document.querySelectorAll(".cell")
 
 const players=[
 {pos:1,color:"p1"},
@@ -186,25 +180,25 @@ const ladders={
 
 const tasks={
 2:"請說：事故是在哪裡發生的？",
-3:"請描述事故發生的時間。",
+3:"描述事故發生的時間。",
 4:"用「發生」造句。",
-5:"回答：事故大約幾點發生？",
+5:"事故大約幾點發生？",
 6:"用「記錄」說一句話。",
-7:"請問對方：事故在哪裡發生？",
+7:"問對方：事故在哪裡發生？",
 8:"用「事故」造句。",
-9:"請描述事故經過。",
-10:"請問：有沒有人受傷？",
+9:"描述事故經過。",
+10:"有沒有人受傷？",
 11:"用「警察」造句。",
 12:"請說：我需要做筆錄。",
 13:"描述事故現場。",
-14:"請問：你看到什麼？",
-15:"說一句完整事故句子。",
+14:"問對方：你看到什麼？",
+15:"說一句完整事故句。",
 16:"用「地點」造句。",
 17:"描述事故時間。",
-18:"請做一個簡短報告。",
-19:"請問對方是否需要幫助。",
+18:"做一個簡短報告。",
+19:"問對方是否需要幫助。",
 20:"說一句事故描述。",
-21:"請問事故在哪條路？",
+21:"事故在哪條路？",
 22:"描述事故現場情況。",
 23:"用「報告」造句。",
 24:"說一句完整描述。"
@@ -212,7 +206,11 @@ const tasks={
 
 function renderTokens(){
 
-cells.forEach(c=>c.innerHTML="")
+cells.forEach(c=>{
+
+c.querySelectorAll(".token").forEach(t=>t.remove())
+
+})
 
 players.forEach((p,i)=>{
 
@@ -220,9 +218,9 @@ const token=document.createElement("div")
 
 token.className="token "+p.color
 
-const index=boardOrder.indexOf(p.pos)
+const cell=[...cells].find(c=>c.dataset.num==p.pos)
 
-cells[index].appendChild(token)
+cell.appendChild(token)
 
 })
 
@@ -235,7 +233,9 @@ function updateStatus(){
 let text=""
 
 players.forEach((p,i)=>{
+
 text+=`玩家${i+1}：第 ${p.pos} 格<br>`
+
 })
 
 document.getElementById("status").innerHTML=text
@@ -260,6 +260,10 @@ renderTokens()
 
 showTask(p.pos)
 
+if(p.pos==25){
+alert("玩家"+(currentPlayer+1)+"獲勝！")
+}
+
 currentPlayer=(currentPlayer+1)%players.length
 
 document.getElementById("playerTurn").innerText="玩家"+(currentPlayer+1)
@@ -269,13 +273,19 @@ document.getElementById("playerTurn").innerText="玩家"+(currentPlayer+1)
 function checkSnakeOrLadder(player){
 
 if(snakes[player.pos]){
+
 player.pos=snakes[player.pos]
+
 alert("🐍 踩到蛇，滑下去！")
+
 }
 
 if(ladders[player.pos]){
+
 player.pos=ladders[player.pos]
+
 alert("🪜 爬上梯子！")
+
 }
 
 }
@@ -293,7 +303,9 @@ document.getElementById("taskModal").style.visibility="visible"
 }
 
 function closeTask(){
+
 document.getElementById("taskModal").style.visibility="hidden"
+
 }
 
 function resetGame(){
