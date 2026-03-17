@@ -28,10 +28,10 @@
     }
 
     .container {
-      max-width: 1180px;
+      max-width: 1300px;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: 440px 1fr;
+      grid-template-columns: minmax(560px, 2fr) minmax(320px, 1fr);
       gap: 24px;
       align-items: start;
     }
@@ -43,16 +43,20 @@
       padding: 18px;
     }
 
+    .game-panel {
+      min-height: 720px;
+    }
+
     .board {
-      width: 404px;
+      width: 509px;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: repeat(5, 80px);
-      grid-template-rows: repeat(5, 80px);
-      gap: 1px;
+      grid-template-columns: repeat(5, 100px);
+      grid-template-rows: repeat(5, 100px);
+      gap: 2px;
       background: #334155;
-      padding: 1px;
-      border-radius: 12px;
+      padding: 2px;
+      border-radius: 14px;
       overflow: hidden;
     }
 
@@ -63,27 +67,27 @@
       flex-direction: column;
       justify-content: space-between;
       align-items: flex-start;
-      padding: 6px;
+      padding: 8px;
       text-align: left;
     }
 
     .cell-number {
       font-weight: 800;
-      font-size: 16px;
+      font-size: 18px;
     }
 
     .cell-icon {
       align-self: center;
-      font-size: 22px;
+      font-size: 26px;
       line-height: 1;
       margin-top: 2px;
     }
 
     .cell-label {
-      font-size: 11px;
+      font-size: 12px;
       color: #475569;
-      line-height: 1.2;
-      min-height: 24px;
+      line-height: 1.25;
+      min-height: 28px;
     }
 
     .start-cell { background: #dbeafe; }
@@ -96,18 +100,18 @@
 
     .token-wrap {
       position: absolute;
-      right: 4px;
-      bottom: 4px;
+      right: 6px;
+      bottom: 6px;
       display: flex;
       flex-wrap: wrap;
       gap: 4px;
       justify-content: flex-end;
-      max-width: 54px;
+      max-width: 60px;
     }
 
     .token {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       border: 2px solid white;
       box-shadow: 0 2px 6px rgba(0,0,0,0.18);
@@ -117,6 +121,19 @@
     .p2 { background: #3b82f6; }
     .p3 { background: #22c55e; }
     .p4 { background: #f59e0b; }
+
+    .legend {
+      margin-top: 16px;
+      text-align: left;
+      font-size: 14px;
+      line-height: 1.9;
+      color: #475569;
+    }
+
+    .legend span {
+      display: inline-block;
+      margin-right: 14px;
+    }
 
     .card {
       background: #f8fafc;
@@ -130,13 +147,6 @@
     .card h2, .card h3 {
       margin: 0 0 10px;
       font-size: 18px;
-    }
-
-    .controls-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 10px;
     }
 
     label {
@@ -164,6 +174,13 @@
       margin-top: 12px;
     }
 
+    .controls-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
     button {
       padding: 10px 16px;
       border: none;
@@ -185,6 +202,22 @@
       background: #475569;
     }
 
+    button.success {
+      background: #16a34a;
+    }
+
+    button.success:hover {
+      background: #15803d;
+    }
+
+    button.danger {
+      background: #dc2626;
+    }
+
+    button.danger:hover {
+      background: #b91c1c;
+    }
+
     .big {
       font-size: 28px;
       font-weight: 800;
@@ -203,7 +236,7 @@
     }
 
     .log {
-      max-height: 240px;
+      max-height: 260px;
       overflow-y: auto;
       display: grid;
       gap: 8px;
@@ -216,19 +249,6 @@
       padding: 10px 12px;
       font-size: 14px;
       line-height: 1.5;
-    }
-
-    .legend {
-      margin-top: 14px;
-      text-align: left;
-      font-size: 14px;
-      line-height: 1.8;
-      color: #475569;
-    }
-
-    .legend span {
-      display: inline-block;
-      margin-right: 12px;
     }
 
     .modal {
@@ -253,8 +273,8 @@
     .modal-content {
       background: white;
       width: 100%;
-      max-width: 500px;
-      border-radius: 16px;
+      max-width: 560px;
+      border-radius: 18px;
       padding: 24px;
       text-align: center;
       box-shadow: 0 16px 40px rgba(0,0,0,0.22);
@@ -274,11 +294,24 @@
     .modal-title {
       font-size: 24px;
       font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .modal-subtitle {
+      font-size: 16px;
+      color: #475569;
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+
+    .modal-dice {
+      font-size: 48px;
+      font-weight: 800;
       margin-bottom: 12px;
     }
 
     .modal-text {
-      font-size: 18px;
+      font-size: 20px;
       line-height: 1.7;
       margin-bottom: 14px;
       white-space: pre-line;
@@ -292,14 +325,38 @@
       line-height: 1.6;
       font-size: 14px;
       margin-bottom: 16px;
+      text-align: left;
     }
 
-    @media (max-width: 980px) {
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 1100px) {
       .container {
         grid-template-columns: 1fr;
       }
+    }
+
+    @media (max-width: 700px) {
       .name-grid {
         grid-template-columns: 1fr;
+      }
+
+      .board {
+        width: 100%;
+        max-width: 509px;
+        grid-template-columns: repeat(5, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+        aspect-ratio: 1 / 1;
+      }
+
+      .cell {
+        min-width: 0;
+        min-height: 0;
       }
     }
   </style>
@@ -311,7 +368,7 @@
   </div>
 
   <div class="container">
-    <section class="panel">
+    <section class="panel game-panel">
       <div id="board" class="board"></div>
 
       <div class="legend">
@@ -386,9 +443,11 @@
     <div class="modal-content">
       <div id="modalBadge" class="modal-badge">任務</div>
       <div id="modalTitle" class="modal-title">題目</div>
+      <div id="modalSubtitle" class="modal-subtitle"></div>
+      <div id="modalDice" class="modal-dice">🎲</div>
       <div id="modalText" class="modal-text"></div>
       <div id="modalNote" class="modal-note"></div>
-      <button id="closeModalBtn">學生回答完成</button>
+      <div id="modalActions" class="modal-actions"></div>
     </div>
   </div>
 
@@ -402,19 +461,19 @@
     ];
 
     const questionMap = {
-      2: "請回答：\n車禍是什麼時候發生的？",
-      4: "請回答：\n車禍大概幾點發生？",
-      5: "請回答：\n車禍是在哪裡發生的？",
-      7: "請回答：\n車禍是在中山路和和平路的路口發生的嗎？",
-      9: "請回答：\n你騎機車還是開車？對方呢？",
-      11: "請回答：\n你的車號是多少？",
-      13: "請回答：\n對方的車號是多少？",
-      15: "請回答：\n車禍是怎麼發生的？",
-      17: "請回答：\n你那個時候要直走、右轉還是左轉？",
-      18: "請回答：\n對方的車是從哪裡來的？",
-      21: "請回答：\n有人受傷嗎？",
-      22: "請回答：\n車子有損壞嗎？",
-      24: "請回答：\n事故發生以後，你做了什麼？"
+      2: "車禍是什麼時候發生的？",
+      4: "車禍大概幾點發生？",
+      5: "車禍是在哪裡發生的？",
+      7: "車禍是在中山路和和平路的路口發生的嗎？",
+      9: "你騎機車還是開車？對方呢？",
+      11: "你的車號是多少？",
+      13: "對方的車號是多少？",
+      15: "車禍是怎麼發生的？",
+      17: "你那個時候要直走、右轉還是左轉？",
+      18: "對方的車是從哪裡來的？",
+      21: "有人受傷嗎？",
+      22: "車子有損壞嗎？",
+      24: "事故發生以後，你做了什麼？"
     };
 
     const ladders = {
@@ -430,10 +489,10 @@
     };
 
     const specials = {
-      6: { type: "rollAgain", label: "🎲 再擲一次", text: "你抽到特殊格：再擲一次。" },
-      10: { type: "forward2", label: "🎲 前進兩格", text: "你抽到特殊格：前進兩格。" },
-      16: { type: "back1", label: "🎲 後退一格", text: "你抽到特殊格：後退一格。" },
-      20: { type: "dialogue", label: "🎲 對話任務", text: "請和同學用兩句話做簡短對話。" }
+      6: { type: "rollAgain", label: "🎲 再擲一次", text: "你抽到特殊格：再擲一次。", note: "這一回合不用換下一位，回答完後可再擲一次。" },
+      10: { type: "forward2", label: "🎲 前進兩格", text: "你抽到特殊格：前進兩格。", note: "系統會自動幫你前進兩格。" },
+      16: { type: "back1", label: "🎲 後退一格", text: "你抽到特殊格：後退一格。", note: "系統會自動幫你後退一格。" },
+      20: { type: "dialogue", label: "🎲 對話任務", text: "請和同學用兩句話做簡短對話。", note: "完成對話後，再按下方按鈕。" }
     };
 
     const boardEl = document.getElementById("board");
@@ -456,9 +515,11 @@
     const taskModal = document.getElementById("taskModal");
     const modalBadge = document.getElementById("modalBadge");
     const modalTitle = document.getElementById("modalTitle");
+    const modalSubtitle = document.getElementById("modalSubtitle");
+    const modalDice = document.getElementById("modalDice");
     const modalText = document.getElementById("modalText");
     const modalNote = document.getElementById("modalNote");
-    const closeModalBtn = document.getElementById("closeModalBtn");
+    const modalActions = document.getElementById("modalActions");
 
     const playerColors = ["p1", "p2", "p3", "p4"];
 
@@ -466,7 +527,6 @@
     let currentPlayer = 0;
     let gameStarted = false;
     let waitingModalClose = false;
-    let pendingExtraRoll = false;
     let gameOver = false;
 
     function updateNameInputs() {
@@ -575,41 +635,71 @@
       logEl.prepend(item);
     }
 
-    function showModal(badge, title, text, note = "請學生口頭回答後，再按下方按鈕。") {
-      modalBadge.textContent = badge;
-      modalTitle.textContent = title;
-      modalText.textContent = text;
-      modalNote.textContent = note;
+    function showModal({ badge, title, subtitle, dice, text, note, actions }) {
+      modalBadge.textContent = badge || "任務";
+      modalTitle.textContent = title || "";
+      modalSubtitle.textContent = subtitle || "";
+      modalDice.textContent = dice || "🎲";
+      modalText.textContent = text || "";
+      modalNote.textContent = note || "";
+      modalActions.innerHTML = "";
+
+      actions.forEach(action => {
+        const btn = document.createElement("button");
+        btn.textContent = action.label;
+        if (action.className) btn.className = action.className;
+        btn.addEventListener("click", action.onClick);
+        modalActions.appendChild(btn);
+      });
+
       taskModal.classList.add("show");
       waitingModalClose = true;
     }
 
-    function closeModal() {
+    function closeModalOnly() {
       taskModal.classList.remove("show");
       waitingModalClose = false;
+    }
 
-      if (gameOver) return;
-
-      if (pendingExtraRoll) {
-        pendingExtraRoll = false;
-        addLog(`${players[currentPlayer].name} 可以再擲一次。`);
-        updateStatus();
-        updateTurnText();
-        return;
-      }
-
+    function nextTurn() {
       currentPlayer = (currentPlayer + 1) % players.length;
       updateStatus();
       updateTurnText();
     }
 
-    function applySnakeOrLadder(player) {
+    function finalizeTurn({ keepTurn = false } = {}) {
+      closeModalOnly();
+      if (gameOver) return;
+      if (!keepTurn) nextTurn();
+      else {
+        updateStatus();
+        updateTurnText();
+      }
+    }
+
+    function applySnakeOrLadder(player, diceValue) {
       if (ladders[player.pos]) {
         const from = player.pos;
         const to = ladders[player.pos];
         player.pos = to;
+        renderTokens();
+        updateStatus();
         addLog(`${player.name} 走到梯子：從第 ${from} 格前進到第 ${to} 格。`);
-        showModal("🪜 梯子", "爬上梯子", `你從第 ${from} 格前進到第 ${to} 格。`);
+
+        showModal({
+          badge: "🪜 梯子",
+          title: "爬上梯子",
+          subtitle: `${player.name} 擲到 ${diceValue} 點，來到第 ${from} 格`,
+          dice: `🎲 ${diceValue}`,
+          text: `你從第 ${from} 格前進到第 ${to} 格。`,
+          note: "這一格不需要回答問題。",
+          actions: [
+            {
+              label: "下一位玩家",
+              onClick: () => finalizeTurn()
+            }
+          ]
+        });
         return true;
       }
 
@@ -617,70 +707,210 @@
         const from = player.pos;
         const to = snakes[player.pos];
         player.pos = to;
+        renderTokens();
+        updateStatus();
         addLog(`${player.name} 遇到蛇：從第 ${from} 格退回到第 ${to} 格。`);
-        showModal("🐍 蛇", "踩到蛇了", `你從第 ${from} 格退回到第 ${to} 格。`);
+
+        showModal({
+          badge: "🐍 蛇",
+          title: "踩到蛇了",
+          subtitle: `${player.name} 擲到 ${diceValue} 點，來到第 ${from} 格`,
+          dice: `🎲 ${diceValue}`,
+          text: `你從第 ${from} 格退回到第 ${to} 格。`,
+          note: "這一格不需要回答問題。",
+          actions: [
+            {
+              label: "下一位玩家",
+              onClick: () => finalizeTurn()
+            }
+          ]
+        });
         return true;
       }
 
       return false;
     }
 
-    function applySpecial(player) {
+    function applySpecial(player, diceValue) {
       const special = specials[player.pos];
       if (!special) return false;
 
       if (special.type === "rollAgain") {
         addLog(`${player.name} 走到特殊格：再擲一次。`);
-        pendingExtraRoll = true;
-        showModal("🎲 特殊移動", "再擲一次", special.text);
+
+        showModal({
+          badge: "🎲 特殊移動",
+          title: "再擲一次",
+          subtitle: `${player.name} 擲到 ${diceValue} 點，來到第 ${player.pos} 格`,
+          dice: `🎲 ${diceValue}`,
+          text: special.text,
+          note: special.note,
+          actions: [
+            {
+              label: "我知道了",
+              onClick: () => finalizeTurn({ keepTurn: true })
+            }
+          ]
+        });
         return true;
       }
 
       if (special.type === "forward2") {
         const from = player.pos;
         player.pos = Math.min(25, player.pos + 2);
+        renderTokens();
+        updateStatus();
         addLog(`${player.name} 走到特殊格：從第 ${from} 格前進到第 ${player.pos} 格。`);
-        showModal("⏩ 特殊移動", "前進兩格", `你從第 ${from} 格前進到第 ${player.pos} 格。`);
+
+        showModal({
+          badge: "⏩ 特殊移動",
+          title: "前進兩格",
+          subtitle: `${player.name} 擲到 ${diceValue} 點，來到第 ${from} 格`,
+          dice: `🎲 ${diceValue}`,
+          text: `你從第 ${from} 格前進到第 ${player.pos} 格。`,
+          note: special.note,
+          actions: [
+            {
+              label: "下一位玩家",
+              onClick: () => finalizeTurn()
+            }
+          ]
+        });
         return true;
       }
 
       if (special.type === "back1") {
         const from = player.pos;
         player.pos = Math.max(1, player.pos - 1);
+        renderTokens();
+        updateStatus();
         addLog(`${player.name} 走到特殊格：從第 ${from} 格後退到第 ${player.pos} 格。`);
-        showModal("⏪ 特殊移動", "後退一格", `你從第 ${from} 格後退到第 ${player.pos} 格。`);
+
+        showModal({
+          badge: "⏪ 特殊移動",
+          title: "後退一格",
+          subtitle: `${player.name} 擲到 ${diceValue} 點，來到第 ${from} 格`,
+          dice: `🎲 ${diceValue}`,
+          text: `你從第 ${from} 格後退到第 ${player.pos} 格。`,
+          note: special.note,
+          actions: [
+            {
+              label: "下一位玩家",
+              onClick: () => finalizeTurn()
+            }
+          ]
+        });
         return true;
       }
 
       if (special.type === "dialogue") {
         addLog(`${player.name} 走到對話格。`);
-        showModal("👥 特殊任務", "對話任務", special.text);
+
+        showModal({
+          badge: "👥 特殊任務",
+          title: "對話任務",
+          subtitle: `${player.name} 擲到 ${diceValue} 點，來到第 ${player.pos} 格`,
+          dice: `🎲 ${diceValue}`,
+          text: special.text,
+          note: special.note,
+          actions: [
+            {
+              label: "對話完成",
+              onClick: () => finalizeTurn()
+            }
+          ]
+        });
         return true;
       }
 
       return false;
     }
 
-    function showQuestion(player) {
+    function showQuestion(player, diceValue) {
       const q = questionMap[player.pos];
       if (!q) return false;
+
       addLog(`${player.name} 走到問題格：第 ${player.pos} 格。`);
-      showModal("🎯 回答問題", `第 ${player.pos} 格`, q);
+
+      showModal({
+        badge: "🎯 回答問題",
+        title: `第 ${player.pos} 格`,
+        subtitle: `${player.name} 擲到 ${diceValue} 點，來到第 ${player.pos} 格`,
+        dice: `🎲 ${diceValue}`,
+        text: q,
+        note: "請先讓學生回答，再選擇答對或答錯。",
+        actions: [
+          {
+            label: "答對了",
+            className: "success",
+            onClick: () => {
+              addLog(`${player.name} 回答正確。`);
+              finalizeTurn();
+            }
+          },
+          {
+            label: "答錯了",
+            className: "danger",
+            onClick: () => {
+              const from = player.pos;
+              player.pos = Math.max(1, player.pos - 1);
+              renderTokens();
+              updateStatus();
+              addLog(`${player.name} 回答錯誤：從第 ${from} 格退到第 ${player.pos} 格。`);
+              finalizeTurn();
+            }
+          }
+        ]
+      });
+
       return true;
     }
 
-    function checkWin(player) {
+    function checkWin(player, diceValue) {
       if (player.pos >= 25) {
         player.pos = 25;
         gameOver = true;
-        addLog(`🏁 ${player.name} 到達終點，獲勝！`);
         renderTokens();
         updateStatus();
         updateTurnText();
-        showModal("🏁 遊戲結束", "恭喜獲勝", `${player.name} 到達終點！`);
+        addLog(`🏁 ${player.name} 到達終點，獲勝！`);
+
+        showModal({
+          badge: "🏁 遊戲結束",
+          title: "恭喜獲勝",
+          subtitle: `${player.name} 擲到 ${diceValue} 點，到達終點`,
+          dice: `🎲 ${diceValue}`,
+          text: `${player.name} 到達第 25 格，完成遊戲！`,
+          note: "可以按重新開始，再玩一次。",
+          actions: [
+            {
+              label: "關閉",
+              onClick: () => closeModalOnly()
+            }
+          ]
+        });
         return true;
       }
       return false;
+    }
+
+    function showFreeCell(player, diceValue) {
+      addLog(`${player.name} 走到自由格。`);
+
+      showModal({
+        badge: "☁️ 自由格",
+        title: `第 ${player.pos} 格`,
+        subtitle: `${player.name} 擲到 ${diceValue} 點，來到第 ${player.pos} 格`,
+        dice: `🎲 ${diceValue}`,
+        text: "這一格是自由格，沒有回答問題。",
+        note: "按下方按鈕後，換下一位玩家。",
+        actions: [
+          {
+            label: "下一位玩家",
+            onClick: () => finalizeTurn()
+          }
+        ]
+      });
     }
 
     function rollDice() {
@@ -699,29 +929,14 @@
       renderTokens();
       updateStatus();
 
-      if (applySnakeOrLadder(player)) {
-        renderTokens();
-        updateStatus();
-        if (checkWin(player)) return;
-        return;
-      }
+      if (checkWin(player, dice)) return;
+      if (applySnakeOrLadder(player, dice)) return;
+      if (checkWin(player, dice)) return;
+      if (applySpecial(player, dice)) return;
+      if (checkWin(player, dice)) return;
+      if (showQuestion(player, dice)) return;
 
-      if (applySpecial(player)) {
-        renderTokens();
-        updateStatus();
-        if (checkWin(player)) return;
-        return;
-      }
-
-      renderTokens();
-      updateStatus();
-
-      if (checkWin(player)) return;
-
-      if (showQuestion(player)) return;
-
-      addLog(`${player.name} 走到自由格。`);
-      showModal("☁️ 自由格", `第 ${player.pos} 格`, "這一格是自由格，沒有回答問題。");
+      showFreeCell(player, dice);
     }
 
     function startGame() {
@@ -730,7 +945,6 @@
       gameStarted = true;
       gameOver = false;
       waitingModalClose = false;
-      pendingExtraRoll = false;
       diceEl.textContent = "🎲";
       logEl.innerHTML = "";
       addLog("遊戲開始。");
@@ -743,11 +957,24 @@
       startGame();
     }
 
+    function createPlayers() {
+      const count = Number(playerCountEl.value);
+      players = [];
+
+      for (let i = 0; i < count; i++) {
+        const inputName = playerNameInputs[i].value.trim();
+        players.push({
+          name: inputName || `玩家${i + 1}`,
+          pos: 1,
+          color: playerColors[i]
+        });
+      }
+    }
+
     playerCountEl.addEventListener("change", updateNameInputs);
     startBtn.addEventListener("click", startGame);
     resetBtn.addEventListener("click", resetGame);
     rollBtn.addEventListener("click", rollDice);
-    closeModalBtn.addEventListener("click", closeModal);
 
     createBoard();
     updateNameInputs();
