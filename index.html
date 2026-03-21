@@ -2,12 +2,12 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>蛇梯遊戲</title>
+<title>職場華語（二）紀錄與報告任務蛇梯遊戲</title>
 
 <style>
-body {
+body{
   margin:0;
-  font-family: "Microsoft JhengHei";
+  font-family:"Microsoft JhengHei";
 }
 
 /* ===== 開場畫面 ===== */
@@ -17,18 +17,17 @@ body {
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  background:
-    repeating-linear-gradient(
-      45deg,
-      #f7c6c7 0px,
-      #f7c6c7 80px,
-      #f28c48 80px,
-      #f28c48 160px
-    );
+  background:repeating-linear-gradient(
+    45deg,
+    #f7c6c7 0px,
+    #f7c6c7 80px,
+    #f28c48 80px,
+    #f28c48 160px
+  );
 }
 
 h1{
-  font-size:80px;
+  font-size:70px;
 }
 
 .start-btn{
@@ -38,7 +37,7 @@ h1{
   cursor:pointer;
 }
 
-/* ===== 棋盤 ===== */
+/* ===== 遊戲畫面 ===== */
 #game{
   display:none;
   padding:20px;
@@ -46,19 +45,22 @@ h1{
 
 .board{
   display:grid;
-  grid-template-columns:repeat(5,100px);
-  gap:5px;
+  grid-template-columns:repeat(5,120px);
+  gap:8px;
+  justify-content:center;
 }
 
 .cell{
-  width:100px;
-  height:100px;
-  border:1px solid #333;
+  width:120px;
+  height:120px;
+  border-radius:12px;
+  border:2px solid #333;
+  background:#fff;
   position:relative;
   display:flex;
   justify-content:center;
   align-items:center;
-  font-weight:bold;
+  font-size:20px;
 }
 
 /* 玩家 */
@@ -66,16 +68,16 @@ h1{
   position:absolute;
   bottom:5px;
   right:5px;
-  font-size:22px;
+  font-size:28px;
   cursor:pointer;
 }
 
-.red{color:red;}
-.blue{color:blue;}
-.green{color:green;}
-.yellow{color:orange;}
+.red{color:#ff4d4d;}
+.blue{color:#4d79ff;}
+.green{color:#33cc66;}
+.yellow{color:#ffcc00;}
 
-/* ===== modal ===== */
+/* ===== Modal ===== */
 .modal{
   position:fixed;
   top:0;
@@ -90,20 +92,27 @@ h1{
 
 .modal-box{
   background:white;
-  padding:30px;
+  padding:40px;
   border-radius:20px;
   text-align:center;
+  width:400px;
 }
 
-/* 大題目 */
+.big{
+  font-size:40px;
+  margin:20px;
+}
+
 .question{
-  font-size:32px;
+  font-size:28px;
   margin:20px;
 }
 
 button{
   padding:10px 20px;
   margin:10px;
+  font-size:18px;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -113,7 +122,7 @@ button{
 <!-- 開場 -->
 <div id="startScreen">
   <h1>🐍蛇梯🪜</h1>
-  <button class="start-btn" onclick="startGame()">開始</button>
+  <button class="start-btn" onclick="startGame()">開始遊戲</button>
 </div>
 
 <!-- 遊戲 -->
@@ -122,11 +131,11 @@ button{
   <div id="board" class="board"></div>
 </div>
 
-<!-- modal -->
+<!-- Modal -->
 <div id="modal" class="modal">
   <div class="modal-box">
-    <h2 id="modalTitle"></h2>
-    <div id="dice" style="font-size:50px;"></div>
+    <div id="modalTitle"></div>
+    <div id="dice" class="big"></div>
     <div id="question" class="question"></div>
     <div id="buttons"></div>
   </div>
@@ -134,6 +143,7 @@ button{
 
 <script>
 
+/* ===== 玩家 ===== */
 let players = [
  {name:"A",pos:1,color:"red"},
  {name:"B",pos:1,color:"blue"},
@@ -143,13 +153,28 @@ let players = [
 
 let current = 0;
 
+/* ===== 題目（你的13題）===== */
 const questions = [
 "車禍是什麼時候發生的？",
 "車禍大概幾點發生？",
 "車禍是在哪裡發生的？",
-"你騎機車還是開車？"
+"車禍是在中山路和和平路的路口發生的嗎？",
+"你騎機車還是開車？對方呢？",
+"你的車號是多少？",
+"對方的車號是多少？",
+"車禍是怎麼發生的？",
+"你那個時候要直走、右轉還是左轉？",
+"對方的車是從哪裡來的？",
+"有人受傷嗎？",
+"車子有損壞嗎？",
+"事故發生以後，你做了什麼？"
 ];
 
+/* ===== 蛇梯 ===== */
+const snakes = {16:6, 18:8};
+const ladders = {3:12, 7:15};
+
+/* ===== 開始 ===== */
 function startGame(){
  document.getElementById("startScreen").style.display="none";
  document.getElementById("game").style.display="block";
@@ -157,6 +182,7 @@ function startGame(){
  render();
 }
 
+/* ===== 建立棋盤 ===== */
 function createBoard(){
  const board=document.getElementById("board");
  board.innerHTML="";
@@ -169,6 +195,7 @@ function createBoard(){
  }
 }
 
+/* ===== 畫玩家 ===== */
 function render(){
  document.getElementById("turn").innerText="輪到："+players[current].name;
 
@@ -189,9 +216,10 @@ function render(){
  });
 }
 
+/* ===== 骰子 ===== */
 function rollDice(){
- openModal("擲骰子","🎲","",[
-  {text:"擲骰",action:()=>{
+ openModal("🎲 擲骰子","", "",[
+  {text:"開始擲骰",action:()=>{
     let n=Math.floor(Math.random()*6)+1;
     animateDice(n);
   }}
@@ -213,33 +241,62 @@ function animateDice(n){
  },100);
 }
 
+/* ===== 移動 ===== */
 function move(n){
  let p=players[current];
  p.pos=Math.min(25,p.pos+n);
 
  setTimeout(()=>{
-  showQuestion(n);
+  checkSnakeLadder(n);
  },500);
 }
 
+/* ===== 蛇梯判斷 ===== */
+function checkSnakeLadder(n){
+ let p=players[current];
+
+ if(snakes[p.pos]){
+  openModal("🐍 踩到蛇！","",`退到 ${snakes[p.pos]} 格`,[
+    {text:"確認",action:()=>{
+      p.pos=snakes[p.pos];
+      showQuestion(n);
+    }}
+  ]);
+ }
+ else if(ladders[p.pos]){
+  openModal("🪜 爬梯子！","",`前進到 ${ladders[p.pos]} 格`,[
+    {text:"確認",action:()=>{
+      p.pos=ladders[p.pos];
+      showQuestion(n);
+    }}
+  ]);
+ }
+ else{
+  showQuestion(n);
+ }
+}
+
+/* ===== 題目 ===== */
 function showQuestion(n){
  let q=questions[Math.floor(Math.random()*questions.length)];
 
- openModal("任務","🎲"+n,q,[
+ openModal("📢 任務","🎲 "+n,q,[
   {text:"答對",action:next},
-  {text:"答錯(退一格)",action:()=>{
+  {text:"答錯（退一格）",action:()=>{
     players[current].pos=Math.max(1,players[current].pos-1);
     next();
   }}
  ]);
 }
 
+/* ===== 下一回合 ===== */
 function next(){
  closeModal();
  current=(current+1)%players.length;
  render();
 }
 
+/* ===== Modal ===== */
 function openModal(title,dice,q,buttons){
  document.getElementById("modal").style.display="flex";
  document.getElementById("modalTitle").innerText=title;
