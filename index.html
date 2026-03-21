@@ -8,68 +8,106 @@
 body{
   margin:0;
   font-family:Arial;
-  background:url('https://i.imgur.com/3ZQ3Z3Z.jpg');
-  background-size:cover;
-  text-align:center;
+  background:linear-gradient(#6ecf68,#3fa34d);
+  overflow:hidden;
 }
 
-.screen{display:none;}
-.active{display:block;}
-
-button{
-  padding:15px 30px;
-  font-size:20px;
-  border-radius:15px;
-  border:none;
-  cursor:pointer;
-}
-
-/* 開場 */
-#startScreen{
+/* 畫面切換 */
+.screen{
+  display:none;
   height:100vh;
-  display:flex;
-  flex-direction:column;
   justify-content:center;
   align-items:center;
+  flex-direction:column;
+}
+.active{display:flex;}
+
+/* 開場 */
+.title{
+  font-size:60px;
+  color:white;
+  text-shadow:3px 3px 0 #000;
 }
 
-#startBtn{
-  background:orange;
-  font-size:40px;
+.startBtn{
+  margin-top:30px;
+  font-size:50px;
+  background:#ff914d;
+  border-radius:20px;
+}
+
+/* 卡片 */
+.card{
+  background:white;
+  padding:30px;
+  border-radius:20px;
+  box-shadow:0 10px 20px rgba(0,0,0,0.3);
 }
 
 /* 棋盤 */
 .board{
   display:grid;
-  grid-template-columns:repeat(5,80px);
-  gap:5px;
-  justify-content:center;
-  margin-top:20px;
+  grid-template-columns:repeat(5,90px);
+  gap:10px;
 }
 
 .cell{
-  width:80px;
-  height:80px;
+  width:90px;
+  height:90px;
   background:#fff8dc;
-  border:2px solid #333;
+  border-radius:15px;
   display:flex;
   align-items:center;
   justify-content:center;
-  position:relative;
   font-weight:bold;
+  font-size:18px;
+  box-shadow:0 5px 10px rgba(0,0,0,0.2);
+  position:relative;
 }
 
+/* 玩家 */
 .player{
   position:absolute;
   bottom:5px;
   right:5px;
+  font-size:25px;
 }
 
+/* 骰子 */
 #diceBtn{
   position:fixed;
-  right:30px;
   bottom:30px;
-  font-size:30px;
+  right:30px;
+  font-size:50px;
+  background:#ff914d;
+  border-radius:50%;
+  padding:20px;
+}
+
+/* 視窗 */
+.modal{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+
+.modalBox{
+  background:white;
+  padding:40px;
+  border-radius:20px;
+  text-align:center;
+  width:60%;
+}
+
+.bigText{
+  font-size:28px;
+  margin-bottom:20px;
 }
 
 </style>
@@ -77,29 +115,33 @@ button{
 
 <body>
 
-<!-- 1️⃣ 開場 -->
+<!-- 開場 -->
 <div id="startScreen" class="screen active">
-  <h1>🐍 蛇梯遊戲 🪜</h1>
-  <button id="startBtn">▶️</button>
+  <div class="title">🐍 蛇梯 🪜</div>
+  <button class="startBtn" onclick="show('selectScreen')">▶️</button>
 </div>
 
-<!-- 2️⃣ 選玩家數 -->
+<!-- 選玩家 -->
 <div id="selectScreen" class="screen">
-  <h2>選擇玩家人數</h2>
-  <button onclick="selectPlayers(2)">2人</button>
-  <button onclick="selectPlayers(3)">3人</button>
-  <button onclick="selectPlayers(4)">4人</button>
+  <div class="card">
+    <h2>選擇玩家人數</h2>
+    <button onclick="selectPlayers(2)">2人</button>
+    <button onclick="selectPlayers(3)">3人</button>
+    <button onclick="selectPlayers(4)">4人</button>
+  </div>
 </div>
 
-<!-- 3️⃣ 輸入名字 -->
+<!-- 輸入名字 -->
 <div id="nameScreen" class="screen">
-  <h2>輸入玩家名稱</h2>
-  <div id="nameInputs"></div>
-  <br>
-  <button onclick="startGame()">開始遊戲</button>
+  <div class="card">
+    <h2>輸入玩家名稱</h2>
+    <div id="nameInputs"></div>
+    <br>
+    <button onclick="startGame()">開始遊戲</button>
+  </div>
 </div>
 
-<!-- 4️⃣ 遊戲 -->
+<!-- 遊戲 -->
 <div id="gameScreen" class="screen">
   <h2 id="turnText"></h2>
   <div id="board" class="board"></div>
@@ -107,23 +149,28 @@ button{
 
 <button id="diceBtn" onclick="rollDice()">🎲</button>
 
+<!-- 任務視窗 -->
+<div id="modal" class="modal">
+  <div class="modalBox">
+    <div id="question" class="bigText"></div>
+    <button onclick="answer(true)">答對</button>
+    <button onclick="answer(false)">答錯</button>
+  </div>
+</div>
+
 <script>
 
-let players = [];
-let current = 0;
-let count = 2;
+let players=[];
+let current=0;
+let pendingMove=0;
 
-const questions = [
+const questions=[
 "車禍是什麼時候發生的？",
-"車禍大概幾點發生？",
-"車禍是在哪裡發生的？",
-"你騎機車還是開車？",
-"車禍是怎麼發生的？"
+"車禍在哪裡發生？",
+"你騎車還是開車？",
+"車禍怎麼發生的？",
+"有人受傷嗎？"
 ];
-
-document.getElementById("startBtn").onclick = ()=>{
-  show("selectScreen");
-};
 
 function show(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
@@ -131,21 +178,21 @@ function show(id){
 }
 
 function selectPlayers(n){
-  count = n;
   let html="";
   for(let i=0;i<n;i++){
-    html += `<input placeholder="玩家${i+1}" id="p${i}"><br>`;
+    html+=`<input id="p${i}" placeholder="玩家${i+1}"><br>`;
   }
-  document.getElementById("nameInputs").innerHTML = html;
+  document.getElementById("nameInputs").innerHTML=html;
   show("nameScreen");
 }
 
 function startGame(){
   players=[];
-  for(let i=0;i<count;i++){
+  for(let i=0;i<document.querySelectorAll("#nameInputs input").length;i++){
     players.push({
       name:document.getElementById(`p${i}`).value || `玩家${i+1}`,
-      pos:1
+      pos:1,
+      icon:["🔴","🔵","🟢","🟡"][i]
     });
   }
   drawBoard();
@@ -154,10 +201,10 @@ function startGame(){
 }
 
 function drawBoard(){
-  const b = document.getElementById("board");
+  const b=document.getElementById("board");
   b.innerHTML="";
   for(let i=1;i<=25;i++){
-    let cell = document.createElement("div");
+    let cell=document.createElement("div");
     cell.className="cell";
     cell.id="c"+i;
     cell.innerHTML=i;
@@ -166,41 +213,45 @@ function drawBoard(){
 }
 
 function update(){
-  document.querySelectorAll(".player").forEach(e=>e.remove());
+  document.querySelectorAll(".player").forEach(p=>p.remove());
 
-  players.forEach((p,i)=>{
-    let token = document.createElement("div");
+  players.forEach(p=>{
+    let token=document.createElement("div");
     token.className="player";
-    token.innerHTML="👮";
+    token.innerHTML=p.icon+"👮";
     document.getElementById("c"+p.pos).appendChild(token);
   });
 
-  document.getElementById("turnText").innerText =
-    "現在輪到："+players[current].name;
+  document.getElementById("turnText").innerText="輪到："+players[current].name;
 }
 
 function rollDice(){
-  let dice = Math.floor(Math.random()*6)+1;
-  let p = players[current];
+  let dice=Math.floor(Math.random()*6)+1;
+  pendingMove=dice;
 
-  p.pos += dice;
-  if(p.pos>25) p.pos=25;
+  let q=questions[Math.floor(Math.random()*questions.length)];
+  document.getElementById("question").innerText="骰子："+dice+" \n\n"+q;
+  document.getElementById("modal").style.display="flex";
+}
 
-  alert("骰到："+dice);
+function answer(correct){
+  document.getElementById("modal").style.display="none";
 
-  if(questions[p.pos%questions.length]){
-    let q = questions[p.pos%questions.length];
-    let correct = confirm(q + "\n\n答對按確定");
-    if(!correct){
-      p.pos -=1;
-    }
+  let p=players[current];
+
+  if(correct){
+    p.pos+=pendingMove;
+  }else{
+    p.pos+=Math.max(1,pendingMove-1);
   }
+
+  if(p.pos>25) p.pos=25;
 
   if(p.pos==25){
     alert(p.name+" 贏了！");
   }
 
-  current = (current+1)%players.length;
+  current=(current+1)%players.length;
 
   update();
 }
