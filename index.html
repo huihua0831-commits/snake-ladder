@@ -5,47 +5,140 @@
 <title>職場華語蛇梯遊戲</title>
 
 <style>
-body{margin:0;font-family:sans-serif;background:#0f172a;color:white;}
-.center{display:flex;justify-content:center;align-items:center;height:100vh;flex-direction:column;}
-.cover{background:url("cover.png") center/cover no-repeat;}
-.play-btn{font-size:30px;padding:20px 40px;border-radius:20px;background:orange;border:none;cursor:pointer;}
+body{
+ margin:0;
+ font-family:"Noto Sans TC",sans-serif;
+ background:linear-gradient(135deg,#1f6f3e,#0f3d2e);
+ color:white;
+}
 
-.panel{background:#1e293b;padding:30px;border-radius:20px;}
-.board{display:grid;grid-template-columns:repeat(5,100px);gap:10px;}
-.cell{width:100px;height:100px;background:#334155;border-radius:15px;display:flex;justify-content:center;align-items:center;font-size:20px;position:relative;}
-.player{position:absolute;bottom:5px;font-size:20px;}
+/* 共用 */
+.center{
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ height:100vh;
+ flex-direction:column;
+}
 
-.dice-btn{position:fixed;bottom:20px;right:20px;font-size:30px;padding:15px;border-radius:15px;background:white;color:black;cursor:pointer;}
+/* 封面 */
+.cover{
+ background:url("cover.png") center/cover no-repeat;
+}
 
-.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;}
-.modal-box{background:white;color:black;padding:30px;border-radius:20px;text-align:center;width:400px;}
-.big{font-size:28px;margin-bottom:20px;}
+/* 按鈕 */
+.btn{
+ padding:12px 25px;
+ border-radius:12px;
+ border:none;
+ cursor:pointer;
+ font-size:16px;
+ margin:5px;
+}
+
+.primary{background:#f59e0b;color:white;}
+.danger{background:#ef4444;color:white;}
+.gray{background:#334155;color:white;}
+
+/* 面板 */
+.panel{
+ background:#0f172a;
+ padding:30px;
+ border-radius:20px;
+ width:500px;
+}
+
+/* 棋盤 */
+.board{
+ display:grid;
+ grid-template-columns:repeat(5,100px);
+ gap:10px;
+ margin-top:20px;
+}
+
+.cell{
+ width:100px;
+ height:100px;
+ background:#1e293b;
+ border-radius:15px;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ position:relative;
+}
+
+.player{
+ position:absolute;
+ bottom:5px;
+ font-size:22px;
+}
+
+/* 骰子 */
+.dice-btn{
+ position:fixed;
+ bottom:20px;
+ right:20px;
+ font-size:30px;
+ padding:15px;
+ border-radius:15px;
+ background:white;
+ color:black;
+ cursor:pointer;
+}
+
+/* Modal */
+.modal{
+ position:fixed;
+ top:0;
+ left:0;
+ width:100%;
+ height:100%;
+ background:rgba(0,0,0,0.7);
+ display:none;
+ justify-content:center;
+ align-items:center;
+}
+
+.modal-box{
+ background:white;
+ color:black;
+ padding:30px;
+ border-radius:20px;
+ width:400px;
+ text-align:center;
+}
+
+.big{
+ font-size:24px;
+ margin-bottom:20px;
+}
 </style>
 </head>
 
 <body>
 
-<!-- 首頁 -->
+<!-- 封面 -->
 <div id="p1" class="center cover">
-<button class="play-btn" onclick="go(2)">開始</button>
+<button class="btn primary" onclick="go(2)">開始遊戲</button>
 </div>
 
 <!-- 人數 -->
 <div id="p2" class="center" style="display:none;">
 <div class="panel">
-<h2>選人數</h2>
-<button onclick="setP(2)">👮👮</button>
-<button onclick="setP(3)">👮👮👮</button>
-<button onclick="setP(4)">👮👮👮👮</button>
+<h2>選擇玩家人數</h2>
+<button class="btn primary" onclick="setP(2)">👮👮</button>
+<button class="btn primary" onclick="setP(3)">👮👮👮</button>
+<button class="btn primary" onclick="setP(4)">👮👮👮👮</button>
 </div>
 </div>
 
 <!-- 名字 -->
 <div id="p3" class="center" style="display:none;">
 <div class="panel">
-<h2>輸入名字</h2>
+<h2>輸入玩家名稱</h2>
 <div id="names"></div>
-<button onclick="start()">開始遊戲</button>
+<br>
+<button class="btn primary" onclick="startGame()">進入遊戲</button>
 </div>
 </div>
 
@@ -55,35 +148,50 @@ body{margin:0;font-family:sans-serif;background:#0f172a;color:white;}
 <div class="board" id="board"></div>
 </div>
 
-<div class="dice-btn" onclick="dice()">🎲</div>
-
 <!-- 骰子 -->
-<div class="modal" id="diceM">
+<div class="dice-btn" onclick="rollDice()">🎲</div>
+
+<!-- 骰子視窗 -->
+<div class="modal" id="diceModal">
 <div class="modal-box">
-<div class="big" id="diceNum"></div>
-<button onclick="nextMove()">確定</button>
+<div class="big" id="diceText"></div>
+<button class="btn primary" onclick="move()">確定</button>
 </div>
 </div>
 
 <!-- 任務 -->
-<div class="modal" id="taskM">
+<div class="modal" id="taskModal">
 <div class="modal-box">
-<div class="big" id="q"></div>
-<div id="btns"></div>
+<div class="big" id="question"></div>
+<div id="taskBtns"></div>
 </div>
 </div>
 
 <script>
-let pc=0, players=[], pos=[], turn=0, diceVal=0;
 
-/* ===== 52題 ===== */
+/* ===== 狀態 ===== */
+let playerCount=0;
+let players=[];
+let positions=[];
+let turn=0;
+let dice=0;
+
+/* ===== 題庫 ===== */
 const bank=[
 // 問答
-"車禍是什麼時候發生的？","車禍大概幾點發生？","車禍是在哪裡發生的？",
-"車禍是在中山路和和平路的路口發生的嗎？","你騎機車還是開車？對方呢？",
-"你的車號是多少？","對方的車號是多少？","車禍是怎麼發生的？",
-"你那個時候要直走、右轉還是左轉？","對方的車是從哪裡來的？",
-"有人受傷嗎？","車子有損壞嗎？","事故發生以後，你做了什麼？",
+"請回答：車禍是什麼時候發生的？",
+"請回答：車禍大概幾點發生？",
+"請回答：車禍是在哪裡發生的？",
+"請回答：車禍是在中山路和和平路的路口發生的嗎？",
+"請回答：你騎機車還是開車？對方呢？",
+"請回答：你的車號是多少？",
+"請回答：對方的車號是多少？",
+"請回答：車禍是怎麼發生的？",
+"請回答：你那個時候要直走、右轉還是左轉？",
+"請回答：對方的車是從哪裡來的？",
+"請回答：有人受傷嗎？",
+"請回答：車子有損壞嗎？",
+"請回答：事故發生以後，你做了什麼？",
 
 // 造句
 "造句：車禍","造句：發生","造句：路口","造句：十字路口","造句：當事人",
@@ -114,22 +222,31 @@ function go(n){
 
 /* ===== 玩家 ===== */
 function setP(n){
- pc=n;
+ playerCount=n;
  let html="";
  for(let i=0;i<n;i++){
-  html+=`<input id="n${i}" placeholder="玩家${i+1}"><br>`;
+  html+=`<input id="p${i}" placeholder="玩家${i+1}" style="width:90%;padding:10px;margin:5px;"><br>`;
  }
  document.getElementById("names").innerHTML=html;
  go(3);
 }
 
-function start(){
- players=[]; pos=[];
- for(let i=0;i<pc;i++){
-  players.push(document.getElementById("n"+i).value||("玩家"+(i+1)));
-  pos.push(1);
+/* ⭐ 修好這裡 */
+function startGame(){
+ players=[];
+ positions=[];
+
+ for(let i=0;i<playerCount;i++){
+  let name=document.getElementById("p"+i).value.trim();
+  players.push(name || ("玩家"+(i+1)));
+  positions.push(1);
  }
+
+ turn=0;
+
+ document.querySelectorAll("body > div").forEach(d=>d.style.display="none");
  document.getElementById("game").style.display="block";
+
  draw();
 }
 
@@ -137,77 +254,79 @@ function start(){
 function draw(){
  let b=document.getElementById("board");
  b.innerHTML="";
+
  for(let i=1;i<=25;i++){
   let c=document.createElement("div");
   c.className="cell";
-  c.innerHTML=i;
+  c.innerText=i;
 
   players.forEach((p,idx)=>{
-   if(pos[idx]==i){
+   if(positions[idx]==i){
     c.innerHTML+=`<div class="player">👮</div>`;
    }
   });
 
   b.appendChild(c);
  }
+
  document.getElementById("turn").innerText="輪到："+players[turn];
 }
 
 /* ===== 骰子 ===== */
-function dice(){
- diceVal=Math.floor(Math.random()*6)+1;
- document.getElementById("diceNum").innerText="🎲 "+diceVal;
- document.getElementById("diceM").style.display="flex";
+function rollDice(){
+ dice=Math.floor(Math.random()*6)+1;
+ document.getElementById("diceText").innerText="🎲 "+dice;
+ document.getElementById("diceModal").style.display="flex";
 }
 
-function nextMove(){
- document.getElementById("diceM").style.display="none";
+function move(){
+ document.getElementById("diceModal").style.display="none";
 
- pos[turn]+=diceVal;
- if(pos[turn]>25) pos[turn]=25;
+ positions[turn]+=dice;
+ if(positions[turn]>25) positions[turn]=25;
 
- task();
+ showTask();
 }
 
 /* ===== 任務 ===== */
-function task(){
+function showTask(){
  let q=getQ();
- document.getElementById("q").innerText=q;
+ document.getElementById("question").innerText=q;
 
- let btns=document.getElementById("btns");
+ let btns=document.getElementById("taskBtns");
 
- // 判斷題型
  if(q.includes("造句")){
-   btns.innerHTML=`<button onclick="next()">完成</button>`;
+  btns.innerHTML=`<button class="btn primary" onclick="next()">完成</button>`;
  }else{
-   btns.innerHTML=`
-   <button onclick="correct()">✔答對</button>
-   <button onclick="wrong()">✖答錯</button>`;
+  btns.innerHTML=`
+  <button class="btn primary" onclick="correct()">答對</button>
+  <button class="btn danger" onclick="wrong()">答錯</button>`;
  }
 
- document.getElementById("taskM").style.display="flex";
+ document.getElementById("taskModal").style.display="flex";
 }
 
 function correct(){
- document.getElementById("taskM").style.display="none";
+ document.getElementById("taskModal").style.display="none";
  next();
 }
 
 function wrong(){
- pos[turn]--;
- document.getElementById("taskM").style.display="none";
+ positions[turn]--;
+ document.getElementById("taskModal").style.display="none";
  next();
 }
 
 function next(){
- if(pos[turn]>=25){
-   alert(players[turn]+" 贏了！");
-   location.reload();
+ if(positions[turn]>=25){
+  alert(players[turn]+" 贏了！");
+  location.reload();
  }
 
- turn=(turn+1)%pc;
+ turn=(turn+1)%playerCount;
  draw();
 }
+
 </script>
 
 </body>
