@@ -1,1527 +1,214 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>職場華語（二）紀錄與報告任務蛇梯遊戲</title>
-  <style>
-    * { box-sizing: border-box; }
-
-    :root{
-      --bg-green-1:#1e5c24;
-      --bg-green-2:#2f7a35;
-      --panel:#0d2136ee;
-      --panel-soft:#122846ee;
-      --line:rgba(255,255,255,.14);
-      --text:#f6f8ff;
-      --muted:#d8e1f4;
-      --gold:#f6c353;
-      --orange:#f39a52;
-      --orange-deep:#cf6f20;
-      --pink:#efc1cb;
-      --cream:#f3dfd8;
-      --red:#ef5c6c;
-      --blue:#4d8dff;
-      --green:#36c76a;
-      --yellow:#f2c94c;
-      --purple:#9b59ff;
-      --shadow:0 18px 40px rgba(0,0,0,.28);
-    }
-
-    body{
-      margin:0;
-      min-height:100vh;
-      font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(circle at 20% 20%, rgba(255,255,255,.06) 1px, transparent 1.6px) 0 0/120px 120px,
-        radial-gradient(circle at 80% 40%, rgba(255,255,255,.05) 1px, transparent 1.6px) 0 0/180px 180px,
-        linear-gradient(180deg,var(--bg-green-1) 0%, var(--bg-green-2) 100%);
-      overflow-x:hidden;
-    }
-
-    .screen{
-      min-height:100vh;
-      display:none;
-      padding:24px;
-      animation:fadeIn .26s ease;
-    }
-
-    .screen.active{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-
-    .hidden{ display:none !important; }
-
-    @keyframes fadeIn{
-      from{ opacity:0; transform:translateY(8px); }
-      to{ opacity:1; transform:translateY(0); }
-    }
-
-    @keyframes floaty{
-      0%,100%{ transform:translateY(0); }
-      50%{ transform:translateY(-5px); }
-    }
-
-    @keyframes pulsePlay{
-      0%,100%{ transform:scale(1); }
-      50%{ transform:scale(1.04); }
-    }
-
-    @keyframes diceShake{
-      0%{ transform:rotate(0deg) scale(1); }
-      20%{ transform:rotate(-10deg) scale(1.08); }
-      40%{ transform:rotate(10deg) scale(.98); }
-      60%{ transform:rotate(-8deg) scale(1.08); }
-      80%{ transform:rotate(8deg) scale(.98); }
-      100%{ transform:rotate(0deg) scale(1); }
-    }
-
-    .btn{
-      border:none;
-      border-radius:16px;
-      padding:14px 26px;
-      cursor:pointer;
-      font:inherit;
-      font-weight:900;
-      color:#111827;
-      background:linear-gradient(180deg,#f9d48f 0%, #e0ac4f 100%);
-      box-shadow:0 8px 0 #8b5c16;
-      transition:.15s ease;
-    }
-
-    .btn:hover{ transform:translateY(-1px); }
-    .btn:active{
-      transform:translateY(4px);
-      box-shadow:0 4px 0 rgba(0,0,0,.25);
-    }
-
-    .btn.secondary{
-      color:white;
-      background:linear-gradient(180deg,#ff7288 0%, #dc4b69 100%);
-      box-shadow:0 8px 0 #7e2037;
-    }
-
-    .btn.ghost{
-      color:white;
-      background:linear-gradient(180deg,#77b1ff 0%, #3d73d8 100%);
-      box-shadow:0 8px 0 #1f407f;
-    }
-
-    .btn.success{
-      color:white;
-      background:linear-gradient(180deg,#43dc7f 0%, #1ea557 100%);
-      box-shadow:0 8px 0 #145e35;
-    }
-
-    .btn.danger{
-      color:white;
-      background:linear-gradient(180deg,#ff7c7c 0%, #d64949 100%);
-      box-shadow:0 8px 0 #7b2020;
-    }
-
-    /* ===== 首頁 ===== */
-    .cover-wrap{
-      width:min(1400px,100%);
-    }
-
-    .cover{
-      position:relative;
-      min-height:760px;
-      border-radius:30px;
-      overflow:hidden;
-      box-shadow:var(--shadow);
-      border:1px solid rgba(255,255,255,.12);
-      background:
-        linear-gradient(0deg, rgba(0,0,0,.08), rgba(0,0,0,.08)),
-        repeating-linear-gradient(
-          -8deg,
-          var(--pink) 0px,
-          var(--pink) 115px,
-          #f49249 115px,
-          #f49249 230px,
-          var(--cream) 230px,
-          var(--cream) 345px
-        );
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:40px 24px;
-    }
-
-    .cover::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:rgba(255,255,255,.06);
-      pointer-events:none;
-    }
-
-    .cover-ladder,
-    .cover-snake{
-      position:absolute;
-      user-select:none;
-      pointer-events:none;
-      filter:drop-shadow(0 12px 18px rgba(0,0,0,.18));
-      z-index:1;
-    }
-
-    .cover-ladder{
-      font-size:140px;
-    }
-
-    .cover-snake{
-      font-size:150px;
-    }
-
-    .ladder-a{ left:60px; top:80px; transform:rotate(-18deg); }
-    .ladder-b{ right:70px; top:120px; transform:rotate(18deg); }
-    .ladder-c{ left:40px; bottom:70px; transform:rotate(10deg); }
-
-    .snake-a{ left:20px; top:160px; transform:rotate(8deg); }
-    .snake-b{ right:40px; top:180px; transform:rotate(-8deg); }
-    .snake-c{ left:250px; bottom:20px; transform:rotate(18deg); }
-    .snake-d{ right:130px; bottom:40px; transform:rotate(-18deg); }
-
-    .cover-content{
-      position:relative;
-      z-index:2;
-    }
-
-    .cover-title{
-      font-size:clamp(90px,10vw,150px);
-      font-weight:900;
-      color:#111;
-      line-height:1;
-      letter-spacing:4px;
-      margin-bottom:18px;
-      text-shadow:
-        0 0 0 #fff,
-        -6px -6px 0 #fff,
-        6px -6px 0 #fff,
-        -6px 6px 0 #fff,
-        6px 6px 0 #fff;
-    }
-
-    .cover-subtitle{
-      font-size:34px;
-      font-weight:900;
-      color:#111;
-      margin-bottom:48px;
-      text-shadow:
-        -3px -3px 0 #fff,
-        3px -3px 0 #fff,
-        -3px 3px 0 #fff,
-        3px 3px 0 #fff;
-    }
-
-    .play-btn{
-      min-width:260px;
-      border-radius:40px;
-      padding:18px 36px;
-      border:6px solid #111;
-      cursor:pointer;
-      background:linear-gradient(180deg,#ffffff 0%, #ececec 100%);
-      color:#111;
-      font-size:46px;
-      font-weight:900;
-      box-shadow:0 12px 0 rgba(0,0,0,.22);
-      animation:pulsePlay 2s ease-in-out infinite;
-    }
-
-    /* ===== 共用卡片 ===== */
-    .card{
-      width:min(980px,100%);
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:28px;
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(8px);
-      padding:30px;
-    }
-
-    .title{
-      font-size:34px;
-      font-weight:900;
-      color:var(--gold);
-      text-align:center;
-      margin-bottom:8px;
-    }
-
-    .subtitle{
-      color:var(--muted);
-      text-align:center;
-      line-height:1.8;
-      margin-bottom:24px;
-    }
-
-    .actions{
-      display:flex;
-      gap:12px;
-      justify-content:center;
-      flex-wrap:wrap;
-      margin-top:24px;
-    }
-
-    /* ===== 玩家數量 ===== */
-    .choice-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:18px;
-    }
-
-    .choice-btn{
-      border:none;
-      border-radius:24px;
-      cursor:pointer;
-      padding:28px 18px;
-      color:white;
-      background:linear-gradient(180deg,#f7a261 0%, #ed7f37 100%);
-      box-shadow:0 10px 0 #b4551a;
-      font:inherit;
-      font-weight:900;
-      transition:.15s ease;
-    }
-
-    .choice-btn:hover{
-      transform:translateY(-2px);
-      filter:brightness(1.03);
-    }
-
-    .choice-btn.selected{
-      outline:4px solid rgba(255,255,255,.25);
-      transform:translateY(-2px);
-    }
-
-    .choice-icon{
-      font-size:40px;
-      margin-bottom:10px;
-    }
-
-    .choice-label{
-      font-size:30px;
-      margin-bottom:6px;
-    }
-
-    .choice-sub{
-      font-size:14px;
-      color:#fff5ed;
-    }
-
-    /* ===== 姓名頁 ===== */
-    .name-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:16px;
-    }
-
-    .field{
-      text-align:left;
-    }
-
-    .field label{
-      display:block;
-      margin-bottom:8px;
-      font-weight:800;
-    }
-
-    .field input{
-      width:100%;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(255,255,255,.08);
-      color:white;
-      padding:13px 14px;
-      font:inherit;
-    }
-
-    .field input::placeholder{
-      color:#d9e1f6;
-    }
-
-    /* ===== 遊戲頁 ===== */
-    .game-root{
-      width:min(1500px,100%);
-    }
-
-    .game-shell{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:30px;
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(8px);
-      padding:22px;
-    }
-
-    .game-header{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:16px;
-      flex-wrap:wrap;
-      margin-bottom:20px;
-    }
-
-    .game-title{
-      font-size:28px;
-      font-weight:900;
-      color:var(--gold);
-    }
-
-    .turn-chip{
-      padding:10px 16px;
-      border-radius:999px;
-      background:rgba(255,255,255,.08);
-      border:1px solid var(--line);
-      font-weight:900;
-    }
-
-    .game-layout{
-      display:grid;
-      grid-template-columns:minmax(760px, 2fr) minmax(300px, 1fr);
-      gap:22px;
-      align-items:start;
-    }
-
-    .board-area{
-      display:flex;
-      justify-content:center;
-    }
-
-    .board-shell{
-      position:relative;
-      width:720px;
-      height:720px;
-      padding:18px;
-      border-radius:34px;
-      background:linear-gradient(180deg,#8a5a1f 0%, #653f15 100%);
-      box-shadow:
-        inset 0 0 0 6px rgba(255,255,255,.05),
-        0 20px 34px rgba(0,0,0,.28);
-    }
-
-    .board{
-      position:relative;
-      width:100%;
-      height:100%;
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      grid-template-rows:repeat(5,1fr);
-      gap:4px;
-      z-index:2;
-    }
-
-    .cell{
-      position:relative;
-      border-radius:18px;
-      padding:12px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      border:1px solid rgba(255,255,255,.14);
-      box-shadow:
-        inset 2px 2px 8px rgba(255,255,255,.08),
-        inset -6px -6px 12px rgba(0,0,0,.16),
-        0 8px 16px rgba(0,0,0,.12);
-      overflow:hidden;
-    }
-
-    .cell.start{background:linear-gradient(145deg,#2d64d3,#244c9d);}
-    .cell.finish{background:linear-gradient(145deg,#9b56e8,#7a36bf);}
-    .cell.question{background:linear-gradient(145deg,#c28f1b,#9a6d12);}
-    .cell.ladder{background:linear-gradient(145deg,#2ea65a,#23844a);}
-    .cell.snake{background:linear-gradient(145deg,#cc5476,#a63a59);}
-    .cell.special{background:linear-gradient(145deg,#39a1d3,#277ea8);}
-    .cell.free{background:linear-gradient(145deg,#5c6b84,#47546a);}
-
-    .cell-number{
-      font-size:30px;
-      font-weight:900;
-      line-height:1;
-    }
-
-    .cell-icon{
-      align-self:center;
-      font-size:30px;
-      line-height:1;
-    }
-
-    .cell-label{
-      font-size:12px;
-      line-height:1.25;
-      color:#ecf3ff;
-      min-height:32px;
-    }
-
-    .token-layer{
-      position:absolute;
-      right:6px;
-      bottom:6px;
-      width:76px;
-      display:grid;
-      grid-template-columns:repeat(2, 1fr);
-      gap:4px;
-      justify-items:end;
-      z-index:5;
-    }
-
-    .token{
-      width:32px;
-      height:32px;
-      border-radius:50%;
-      border:3px solid rgba(255,255,255,.96);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:16px;
-      box-shadow:0 8px 16px rgba(0,0,0,.24);
-      animation:floaty 2.1s ease-in-out infinite;
-      transition:.15s ease;
-    }
-
-    .token.p1{ background:var(--red); }
-    .token.p2{ background:var(--blue); }
-    .token.p3{ background:var(--green); }
-    .token.p4{ background:var(--yellow); }
-
-    .board-svg{
-      position:absolute;
-      inset:18px;
-      width:calc(100% - 36px);
-      height:calc(100% - 36px);
-      z-index:1;
-      pointer-events:none;
-    }
-
-    .side-panel{
-      display:grid;
-      gap:14px;
-    }
-
-    .info-card{
-      background:var(--panel-soft);
-      border:1px solid var(--line);
-      border-radius:20px;
-      padding:16px;
-      text-align:left;
-    }
-
-    .info-card h3{
-      margin:0 0 12px;
-      color:var(--gold);
-      font-size:18px;
-    }
-
-    .player-list{
-      display:grid;
-      gap:8px;
-    }
-
-    .player-item,
-    .log-item{
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:12px;
-      padding:10px 12px;
-      line-height:1.5;
-    }
-
-    .helper{
-      color:var(--muted);
-      line-height:1.8;
-      font-size:14px;
-    }
-
-    .log{
-      max-height:240px;
-      overflow-y:auto;
-      display:grid;
-      gap:8px;
-    }
-
-    .dice-panel-btn{
-      width:100%;
-      padding:18px 16px;
-      font-size:28px;
-    }
-
-    /* ===== Modal ===== */
-    .modal{
-      position:fixed;
-      inset:0;
-      background:rgba(2,6,23,.72);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      visibility:hidden;
-      opacity:0;
-      transition:.22s ease;
-      padding:18px;
-      z-index:999;
-    }
-
-    .modal.show{
-      visibility:visible;
-      opacity:1;
-    }
-
-    .modal-card{
-      width:100%;
-      max-width:680px;
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:28px;
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(8px);
-      padding:28px;
-      text-align:center;
-    }
-
-    .modal-badge{
-      display:inline-block;
-      padding:6px 12px;
-      border-radius:999px;
-      background:rgba(255,255,255,.1);
-      border:1px solid var(--line);
-      font-size:12px;
-      font-weight:900;
-      margin-bottom:12px;
-    }
-
-    .modal-title{
-      font-size:34px;
-      font-weight:900;
-      color:var(--gold);
-      margin-bottom:8px;
-    }
-
-    .modal-subtitle{
-      color:var(--muted);
-      line-height:1.7;
-      margin-bottom:14px;
-      white-space:pre-line;
-    }
-
-    .dice-box{
-      font-size:84px;
-      line-height:1;
-      min-height:92px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      margin-bottom:12px;
-    }
-
-    .dice-box.rolling{
-      animation:diceShake .22s linear infinite;
-    }
-
-    .modal-question{
-      font-size:38px;
-      font-weight:900;
-      line-height:1.5;
-      margin:14px 0 18px;
-      white-space:pre-line;
-    }
-
-    .modal-text{
-      font-size:24px;
-      line-height:1.7;
-      margin:12px 0 18px;
-      white-space:pre-line;
-    }
-
-    .modal-note{
-      background:rgba(255,255,255,.08);
-      border-radius:14px;
-      padding:12px 14px;
-      color:#dae4fb;
-      line-height:1.7;
-      font-size:14px;
-      margin-bottom:18px;
-      text-align:left;
-    }
-
-    .modal-actions{
-      display:flex;
-      gap:10px;
-      justify-content:center;
-      flex-wrap:wrap;
-    }
-
-    @media (max-width:1200px){
-      .game-layout{
-        grid-template-columns:1fr;
-      }
-      .board-shell{
-        width:min(720px,100%);
-        height:auto;
-        aspect-ratio:1/1;
-      }
-    }
-
-    @media (max-width:760px){
-      .choice-grid,
-      .name-grid{
-        grid-template-columns:1fr;
-      }
-      .cover-title{
-        font-size:72px;
-      }
-      .cover-subtitle{
-        font-size:24px;
-      }
-      .game-title{
-        font-size:22px;
-      }
-      .modal-title{
-        font-size:28px;
-      }
-      .modal-question{
-        font-size:28px;
-      }
-      .modal-text{
-        font-size:18px;
-      }
-      .dice-box{
-        font-size:64px;
-      }
-      .cover-ladder,
-      .cover-snake{
-        font-size:90px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<title>職場華語蛇梯遊戲</title>
+
+<style>
+body{margin:0;font-family:sans-serif;background:#0f172a;color:white;}
+.center{display:flex;justify-content:center;align-items:center;height:100vh;flex-direction:column;}
+.cover{background:url("cover.png") center/cover no-repeat;}
+.play-btn{font-size:30px;padding:20px 40px;border-radius:20px;background:orange;border:none;cursor:pointer;}
+
+.panel{background:#1e293b;padding:30px;border-radius:20px;}
+.board{display:grid;grid-template-columns:repeat(5,100px);gap:10px;}
+.cell{width:100px;height:100px;background:#334155;border-radius:15px;display:flex;justify-content:center;align-items:center;font-size:20px;position:relative;}
+.player{position:absolute;bottom:5px;font-size:20px;}
+
+.dice-btn{position:fixed;bottom:20px;right:20px;font-size:30px;padding:15px;border-radius:15px;background:white;color:black;cursor:pointer;}
+
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;}
+.modal-box{background:white;color:black;padding:30px;border-radius:20px;text-align:center;width:400px;}
+.big{font-size:28px;margin-bottom:20px;}
+</style>
 </head>
+
 <body>
-  <!-- 首頁 -->
-  <section id="startScreen" class="screen active">
-    <div class="cover-wrap">
-      <div class="cover">
-        <div class="cover-ladder ladder-a">🪜</div>
-        <div class="cover-ladder ladder-b">🪜</div>
-        <div class="cover-ladder ladder-c">🪜</div>
 
-        <div class="cover-snake snake-a">🐍</div>
-        <div class="cover-snake snake-b">🐍</div>
-        <div class="cover-snake snake-c">🐍</div>
-        <div class="cover-snake snake-d">🐍</div>
+<!-- 首頁 -->
+<div id="p1" class="center cover">
+<button class="play-btn" onclick="go(2)">開始</button>
+</div>
 
-        <div class="cover-content">
-          <div class="cover-title">蛇梯</div>
-          <div class="cover-subtitle">職場華語（二）紀錄與報告任務蛇梯遊戲</div>
-          <button class="play-btn" id="playBtn">開始</button>
-        </div>
-      </div>
-    </div>
-  </section>
+<!-- 人數 -->
+<div id="p2" class="center" style="display:none;">
+<div class="panel">
+<h2>選人數</h2>
+<button onclick="setP(2)">👮👮</button>
+<button onclick="setP(3)">👮👮👮</button>
+<button onclick="setP(4)">👮👮👮👮</button>
+</div>
+</div>
 
-  <!-- 玩家數量 -->
-  <section id="selectScreen" class="screen">
-    <div class="card">
-      <div class="title">選擇玩家人數</div>
-      <div class="subtitle">請先選擇本次參與遊戲的玩家數量。</div>
+<!-- 名字 -->
+<div id="p3" class="center" style="display:none;">
+<div class="panel">
+<h2>輸入名字</h2>
+<div id="names"></div>
+<button onclick="start()">開始遊戲</button>
+</div>
+</div>
 
-      <div class="choice-grid">
-        <button class="choice-btn" data-count="2">
-          <div class="choice-icon">👮👮</div>
-          <div class="choice-label">2 人</div>
-          <div class="choice-sub">雙人對戰</div>
-        </button>
-        <button class="choice-btn" data-count="3">
-          <div class="choice-icon">👮👮👮</div>
-          <div class="choice-label">3 人</div>
-          <div class="choice-sub">三人遊戲</div>
-        </button>
-        <button class="choice-btn" data-count="4">
-          <div class="choice-icon">👮👮👮👮</div>
-          <div class="choice-label">4 人</div>
-          <div class="choice-sub">完整模式</div>
-        </button>
-      </div>
+<!-- 遊戲 -->
+<div id="game" style="display:none;padding:20px;">
+<h2 id="turn"></h2>
+<div class="board" id="board"></div>
+</div>
 
-      <div class="actions">
-        <button class="btn secondary" id="backHomeBtn">回首頁</button>
-        <button class="btn" id="goNameBtn">下一步</button>
-      </div>
-    </div>
-  </section>
+<div class="dice-btn" onclick="dice()">🎲</div>
 
-  <!-- 玩家姓名 -->
-  <section id="nameScreen" class="screen">
-    <div class="card">
-      <div class="title">輸入玩家名稱</div>
-      <div class="subtitle">請輸入每位玩家的名字，完成後進入遊戲。</div>
+<!-- 骰子 -->
+<div class="modal" id="diceM">
+<div class="modal-box">
+<div class="big" id="diceNum"></div>
+<button onclick="nextMove()">確定</button>
+</div>
+</div>
 
-      <div id="nameFields" class="name-grid"></div>
+<!-- 任務 -->
+<div class="modal" id="taskM">
+<div class="modal-box">
+<div class="big" id="q"></div>
+<div id="btns"></div>
+</div>
+</div>
 
-      <div class="actions">
-        <button class="btn secondary" id="backSelectBtn">返回上一步</button>
-        <button class="btn" id="enterGameBtn">進入遊戲</button>
-      </div>
-    </div>
-  </section>
+<script>
+let pc=0, players=[], pos=[], turn=0, diceVal=0;
 
-  <!-- 遊戲頁 -->
-  <section id="gameScreen" class="screen">
-    <div class="game-root">
-      <div class="game-shell">
-        <div class="game-header">
-          <div class="game-title">職場華語（二）紀錄與報告任務蛇梯遊戲</div>
-          <div class="turn-chip">目前玩家：<span id="currentTurnText">-</span></div>
-        </div>
+/* ===== 52題 ===== */
+const bank=[
+// 問答
+"車禍是什麼時候發生的？","車禍大概幾點發生？","車禍是在哪裡發生的？",
+"車禍是在中山路和和平路的路口發生的嗎？","你騎機車還是開車？對方呢？",
+"你的車號是多少？","對方的車號是多少？","車禍是怎麼發生的？",
+"你那個時候要直走、右轉還是左轉？","對方的車是從哪裡來的？",
+"有人受傷嗎？","車子有損壞嗎？","事故發生以後，你做了什麼？",
 
-        <div class="game-layout">
-          <div class="board-area">
-            <div class="board-shell">
-              <svg class="board-svg" viewBox="0 0 600 600" preserveAspectRatio="none">
-                <!-- 梯子 -->
-                <g stroke="#9ec2ff" stroke-width="8" stroke-linecap="round">
-                  <!-- 3 -> 8 -->
-                  <line x1="306" y1="542" x2="418" y2="420"/>
-                  <line x1="334" y1="560" x2="446" y2="438"/>
-                  <line x1="314" y1="532" x2="342" y2="560"/>
-                  <line x1="338" y1="507" x2="366" y2="535"/>
-                  <line x1="362" y1="482" x2="390" y2="510"/>
-                  <line x1="386" y1="457" x2="414" y2="485"/>
-                </g>
-
-                <g stroke="#9ec2ff" stroke-width="8" stroke-linecap="round">
-                  <!-- 8 -> 14 -->
-                  <line x1="186" y1="420" x2="304" y2="300"/>
-                  <line x1="214" y1="438" x2="332" y2="318"/>
-                  <line x1="194" y1="410" x2="222" y2="438"/>
-                  <line x1="218" y1="385" x2="246" y2="413"/>
-                  <line x1="242" y1="360" x2="270" y2="388"/>
-                  <line x1="266" y1="335" x2="294" y2="363"/>
-                </g>
-
-                <g stroke="#9ec2ff" stroke-width="8" stroke-linecap="round">
-                  <!-- 14 -> 20 -->
-                  <line x1="418" y1="300" x2="540" y2="180"/>
-                  <line x1="446" y1="318" x2="568" y2="198"/>
-                  <line x1="426" y1="290" x2="454" y2="318"/>
-                  <line x1="450" y1="265" x2="478" y2="293"/>
-                  <line x1="474" y1="240" x2="502" y2="268"/>
-                  <line x1="498" y1="215" x2="526" y2="243"/>
-                </g>
-
-                <!-- 蛇 -->
-                <!-- 12 -> 6 -->
-                <path d="M186 300 C120 320, 120 395, 188 420 C248 438, 248 498, 186 540"
-                      fill="none" stroke="#ff7093" stroke-width="18" stroke-linecap="round"/>
-                <circle cx="182" cy="295" r="18" fill="#ff7093"/>
-                <circle cx="176" cy="289" r="3" fill="#421321"/>
-                <circle cx="188" cy="289" r="3" fill="#421321"/>
-
-                <!-- 19 -> 10 -->
-                <path d="M422 180 C364 208, 362 252, 420 300 C472 338, 470 386, 420 420"
-                      fill="none" stroke="#ffd84d" stroke-width="18" stroke-linecap="round"/>
-                <circle cx="420" cy="174" r="18" fill="#ffd84d"/>
-                <circle cx="414" cy="168" r="3" fill="#463d10"/>
-                <circle cx="426" cy="168" r="3" fill="#463d10"/>
-
-                <!-- 23 -> 16 -->
-                <path d="M540 180 C590 154, 588 112, 538 60"
-                      fill="none" stroke="#b776ff" stroke-width="18" stroke-linecap="round"/>
-                <circle cx="540" cy="183" r="18" fill="#b776ff"/>
-                <circle cx="534" cy="177" r="3" fill="#311543"/>
-                <circle cx="546" cy="177" r="3" fill="#311543"/>
-              </svg>
-
-              <div id="board" class="board"></div>
-            </div>
-          </div>
-
-          <div class="side-panel">
-            <div class="info-card">
-              <h3>玩家狀態</h3>
-              <div id="playerList" class="player-list"></div>
-            </div>
-
-            <div class="info-card">
-              <h3>操作方式</h3>
-              <div class="helper">
-                請按右側「擲骰子」按鈕開始本回合。<br>
-                系統會先顯示擲骰動畫，再進入蛇、梯子、問題或特殊格視窗。
-              </div>
-            </div>
-
-            <div class="info-card">
-              <h3>遊戲操作</h3>
-              <button id="diceBtn" class="btn dice-panel-btn">🎲 擲骰子</button>
-            </div>
-
-            <div class="info-card">
-              <h3>遊戲紀錄</h3>
-              <div id="log" class="log"></div>
-            </div>
-
-            <div class="info-card">
-              <div class="actions" style="margin-top:0;">
-                <button class="btn secondary" id="backNameBtn">返回設定</button>
-                <button class="btn ghost" id="restartBtn">重新開始</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 視窗 -->
-  <div id="modal" class="modal">
-    <div class="modal-card">
-      <div id="modalBadge" class="modal-badge">事件</div>
-      <div id="modalTitle" class="modal-title">標題</div>
-      <div id="modalSubtitle" class="modal-subtitle"></div>
-      <div id="modalDice" class="dice-box">🎲</div>
-      <div id="modalQuestion" class="modal-question"></div>
-      <div id="modalText" class="modal-text"></div>
-      <div id="modalNote" class="modal-note"></div>
-      <div id="modalActions" class="modal-actions"></div>
-    </div>
-  </div>
-
-  <script>
-    const boardOrder = [
-      21,22,23,24,25,
-      20,19,18,17,16,
-      11,12,13,14,15,
-      10,9,8,7,6,
-      1,2,3,4,5
-    ];
-
-    // ===== 52題題庫 =====
-const questionBank = [
-"請回答問題：車禍是什麼時候發生的？",
-"請回答問題：車禍大概幾點發生？",
-"請回答問題：車禍是在哪裡發生的？",
-"請回答問題：車禍是在中山路和和平路的路口發生的嗎？",
-"請回答問題：你騎機車還是開車？對方呢？",
-"請回答問題：你的車號是多少？",
-"請回答問題：對方的車號是多少？",
-"請回答問題：車禍是怎麼發生的？",
-"請回答問題：你那個時候要直走、右轉還是左轉？",
-"請回答問題：對方的車是從哪裡來的？",
-"請回答問題：有人受傷嗎？",
-"請回答問題：車子有損壞嗎？",
-"請回答問題：事故發生以後，你做了什麼？",
-
-"請造句：車禍",
-"請造句：發生",
-"請造句：路口",
-"請造句：十字路口",
-"請造句：當事人",
-"請造句：車種",
-"請造句：車號",
-"請造句：直走",
-"請造句：右轉",
-"請造句：左轉",
-"請造句：等紅燈",
-"請造句：停在路邊",
-"請造句：擦撞",
-"請造句：突然",
-"請造句：巷子",
-"請造句：開出來",
-"請造句：來不及",
-"請造句：煞車",
-"請造句：撞到",
-"請造句：超車",
-"請造句：速度",
-"請造句：倒車",
-"請造句：摔倒",
-"請造句：撞凹",
-"請造句：倒",
-"請造句：按喇叭",
-"請造句：停下來",
-"請造句：受傷",
-"請造句：擦傷",
-"請造句：其他",
-"請造句：骨折",
-"請造句：流血",
-"請造句：車燈",
-"請造句：壞",
-"請造句：對方",
-"請造句：車門",
-"請造句：拍照",
-"請造句：報警",
-"請造句：救護車"
+// 造句
+"造句：車禍","造句：發生","造句：路口","造句：十字路口","造句：當事人",
+"造句：車種","造句：車號","造句：直走","造句：右轉","造句：左轉",
+"造句：等紅燈","造句：停在路邊","造句：擦撞","造句：突然","造句：巷子",
+"造句：開出來","造句：來不及","造句：煞車","造句：撞到","造句：超車",
+"造句：速度","造句：倒車","造句：摔倒","造句：撞凹","造句：倒",
+"造句：按喇叭","造句：停下來","造句：受傷","造句：擦傷","造句：其他",
+"造句：骨折","造句：流血","造句：車燈","造句：壞","造句：對方",
+"造句：車門","造句：拍照","造句：報警","造句：救護車"
 ];
 
-// ===== 抽題池（不重複）=====
-let questionPool = [...questionBank];
+let pool=[...bank];
 
-function getRandomQuestion(){
-  if(questionPool.length === 0){
-    questionPool = [...questionBank]; // 用完重置
-  }
-
-  const index = Math.floor(Math.random() * questionPool.length);
-  const q = questionPool[index];
-
-  questionPool.splice(index,1); // 移除避免重複
-  return q;
+function getQ(){
+ if(pool.length===0) pool=[...bank];
+ let i=Math.floor(Math.random()*pool.length);
+ let q=pool[i];
+ pool.splice(i,1);
+ return q;
 }
 
-// ===== 顯示題目（升級版）=====
-function showQuestion(){
-  const q = getRandomQuestion();
-
-  document.getElementById("question").innerText = q;
-
-  document.getElementById("taskModal").style.display = "flex";
+/* ===== 頁面 ===== */
+function go(n){
+ document.querySelectorAll("body > div").forEach(d=>d.style.display="none");
+ document.getElementById("p"+n).style.display="flex";
 }
 
-    const ladders = { 3: 8, 8: 14, 14: 20 };
-    const snakes = { 12: 6, 19: 10, 23: 16 };
-    const specials = {
-      6:  { type: "rollAgain", text: "你抽到特殊格：再擲一次。", note: "同一位玩家可以再按一次擲骰子。" },
-      10: { type: "forward2", text: "你抽到特殊格：前進兩格。", note: "系統會自動幫你前進兩格。" },
-      16: { type: "back1", text: "你抽到特殊格：後退一格。", note: "系統會自動幫你後退一格。" },
-      20: { type: "dialogue", text: "請和同學用兩句話做簡短對話。", note: "完成對話後再按按鈕。" }
-    };
+/* ===== 玩家 ===== */
+function setP(n){
+ pc=n;
+ let html="";
+ for(let i=0;i<n;i++){
+  html+=`<input id="n${i}" placeholder="玩家${i+1}"><br>`;
+ }
+ document.getElementById("names").innerHTML=html;
+ go(3);
+}
 
-    const playerColors = ["p1","p2","p3","p4"];
-    const avatars = ["👮‍♂️","👮‍♀️","🕵️","👮"];
+function start(){
+ players=[]; pos=[];
+ for(let i=0;i<pc;i++){
+  players.push(document.getElementById("n"+i).value||("玩家"+(i+1)));
+  pos.push(1);
+ }
+ document.getElementById("game").style.display="block";
+ draw();
+}
 
-    const startScreen = document.getElementById("startScreen");
-    const selectScreen = document.getElementById("selectScreen");
-    const nameScreen = document.getElementById("nameScreen");
-    const gameScreen = document.getElementById("gameScreen");
+/* ===== 棋盤 ===== */
+function draw(){
+ let b=document.getElementById("board");
+ b.innerHTML="";
+ for(let i=1;i<=25;i++){
+  let c=document.createElement("div");
+  c.className="cell";
+  c.innerHTML=i;
 
-    const playBtn = document.getElementById("playBtn");
-    const backHomeBtn = document.getElementById("backHomeBtn");
-    const goNameBtn = document.getElementById("goNameBtn");
-    const backSelectBtn = document.getElementById("backSelectBtn");
-    const enterGameBtn = document.getElementById("enterGameBtn");
-    const backNameBtn = document.getElementById("backNameBtn");
-    const restartBtn = document.getElementById("restartBtn");
-    const diceBtn = document.getElementById("diceBtn");
+  players.forEach((p,idx)=>{
+   if(pos[idx]==i){
+    c.innerHTML+=`<div class="player">👮</div>`;
+   }
+  });
 
-    const boardEl = document.getElementById("board");
-    const currentTurnText = document.getElementById("currentTurnText");
-    const playerListEl = document.getElementById("playerList");
-    const logEl = document.getElementById("log");
-    const nameFieldsEl = document.getElementById("nameFields");
+  b.appendChild(c);
+ }
+ document.getElementById("turn").innerText="輪到："+players[turn];
+}
 
-    const modal = document.getElementById("modal");
-    const modalBadge = document.getElementById("modalBadge");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalSubtitle = document.getElementById("modalSubtitle");
-    const modalDice = document.getElementById("modalDice");
-    const modalQuestion = document.getElementById("modalQuestion");
-    const modalText = document.getElementById("modalText");
-    const modalNote = document.getElementById("modalNote");
-    const modalActions = document.getElementById("modalActions");
+/* ===== 骰子 ===== */
+function dice(){
+ diceVal=Math.floor(Math.random()*6)+1;
+ document.getElementById("diceNum").innerText="🎲 "+diceVal;
+ document.getElementById("diceM").style.display="flex";
+}
 
-    let selectedPlayerCount = 2;
-    let players = [];
-    let currentPlayer = 0;
-    let modalLocked = false;
-    let gameStarted = false;
-    let gameOver = false;
+function nextMove(){
+ document.getElementById("diceM").style.display="none";
 
-    function showScreen(target){
-      [startScreen, selectScreen, nameScreen, gameScreen].forEach(s => s.classList.remove("active"));
-      target.classList.add("active");
-    }
+ pos[turn]+=diceVal;
+ if(pos[turn]>25) pos[turn]=25;
 
-    function updateChoiceSelection(){
-      document.querySelectorAll(".choice-btn").forEach(btn => {
-        btn.classList.toggle("selected", Number(btn.dataset.count) === selectedPlayerCount);
-      });
-    }
+ task();
+}
 
-    function buildNameFields(){
-      nameFieldsEl.innerHTML = "";
-      for(let i = 0; i < selectedPlayerCount; i++){
-        const div = document.createElement("div");
-        div.className = "field";
-        div.innerHTML = `
-          <label for="playerName${i}">玩家 ${i + 1} 姓名</label>
-          <input id="playerName${i}" type="text" value="學生${i + 1}">
-        `;
-        nameFieldsEl.appendChild(div);
-      }
-    }
+/* ===== 任務 ===== */
+function task(){
+ let q=getQ();
+ document.getElementById("q").innerText=q;
 
-    function getCellType(num){
-      if(num === 1) return "start";
-      if(num === 25) return "finish";
-      if(questionMap[num]) return "question";
-      if(ladders[num]) return "ladder";
-      if(snakes[num]) return "snake";
-      if(specials[num]) return "special";
-      return "free";
-    }
+ let btns=document.getElementById("btns");
 
-    function getCellDisplay(num){
-      if(num === 1) return { icon:"🚩", label:"起點" };
-      if(num === 25) return { icon:"🏁", label:"終點" };
-      if(questionMap[num]) return { icon:"🎯", label:"回答問題" };
-      if(ladders[num]) return { icon:"🪜", label:`${num} → ${ladders[num]}` };
-      if(snakes[num]) return { icon:"🐍", label:`${num} → ${snakes[num]}` };
-      if(specials[num]) return { icon:"🎲", label:"特殊格" };
-      return { icon:"☁️", label:"自由格" };
-    }
+ // 判斷題型
+ if(q.includes("造句")){
+   btns.innerHTML=`<button onclick="next()">完成</button>`;
+ }else{
+   btns.innerHTML=`
+   <button onclick="correct()">✔答對</button>
+   <button onclick="wrong()">✖答錯</button>`;
+ }
 
-    function createBoard(){
-      boardEl.innerHTML = "";
-      boardOrder.forEach(num => {
-        const type = getCellType(num);
-        const display = getCellDisplay(num);
+ document.getElementById("taskM").style.display="flex";
+}
 
-        const cell = document.createElement("div");
-        cell.className = `cell ${type}`;
-        cell.dataset.num = num;
-        cell.innerHTML = `
-          <div class="cell-number">${num}</div>
-          <div class="cell-icon">${display.icon}</div>
-          <div class="cell-label">${display.label}</div>
-          <div class="token-layer"></div>
-        `;
-        boardEl.appendChild(cell);
-      });
-    }
+function correct(){
+ document.getElementById("taskM").style.display="none";
+ next();
+}
 
-    function createPlayers(){
-      players = [];
-      for(let i = 0; i < selectedPlayerCount; i++){
-        const input = document.getElementById(`playerName${i}`);
-        players.push({
-          name: input.value.trim() || `玩家${i + 1}`,
-          pos: 1,
-          color: playerColors[i],
-          avatar: avatars[i]
-        });
-      }
-    }
+function wrong(){
+ pos[turn]--;
+ document.getElementById("taskM").style.display="none";
+ next();
+}
 
-    function renderTokens(){
-      document.querySelectorAll(".token-layer").forEach(layer => layer.innerHTML = "");
+function next(){
+ if(pos[turn]>=25){
+   alert(players[turn]+" 贏了！");
+   location.reload();
+ }
 
-      players.forEach(player => {
-        const cell = [...document.querySelectorAll(".cell")].find(c => Number(c.dataset.num) === player.pos);
-        if(!cell) return;
+ turn=(turn+1)%pc;
+ draw();
+}
+</script>
 
-        const layer = cell.querySelector(".token-layer");
-        const token = document.createElement("div");
-        token.className = `token ${player.color}`;
-        token.innerHTML = player.avatar;
-        token.title = player.name;
-        layer.appendChild(token);
-      });
-    }
-
-    function updatePlayerPanel(){
-      playerListEl.innerHTML = "";
-      players.forEach((player, index) => {
-        const item = document.createElement("div");
-        item.className = "player-item";
-        item.innerHTML = `${player.avatar} <strong>${player.name}</strong>：第 ${player.pos} 格 ${index === currentPlayer && !gameOver ? "（目前玩家）" : ""}`;
-        playerListEl.appendChild(item);
-      });
-
-      currentTurnText.textContent = gameOver ? "遊戲結束" : (players[currentPlayer]?.name || "-");
-    }
-
-    function addLog(text){
-      const item = document.createElement("div");
-      item.className = "log-item";
-      item.textContent = text;
-      logEl.prepend(item);
-    }
-
-    function openModal({ badge, title, subtitle="", dice="🎲", question="", text="", note="", actions=[] }){
-      modalBadge.textContent = badge;
-      modalTitle.textContent = title;
-      modalSubtitle.textContent = subtitle;
-      modalDice.textContent = dice;
-      modalQuestion.textContent = question;
-      modalText.textContent = text;
-      modalNote.textContent = note;
-      modalActions.innerHTML = "";
-
-      actions.forEach(action => {
-        const btn = document.createElement("button");
-        btn.className = `btn ${action.className || ""}`.trim();
-        btn.textContent = action.label;
-        btn.addEventListener("click", action.onClick);
-        modalActions.appendChild(btn);
-      });
-
-      modal.classList.add("show");
-      modalLocked = true;
-      diceBtn.disabled = true;
-    }
-
-    function closeModal(){
-      modal.classList.remove("show");
-      modalLocked = false;
-      diceBtn.disabled = false;
-    }
-
-    function nextTurn(){
-      currentPlayer = (currentPlayer + 1) % players.length;
-      updatePlayerPanel();
-      renderTokens();
-    }
-
-    function finishTurn(keepTurn = false){
-      closeModal();
-      if(gameOver) return;
-      if(!keepTurn) nextTurn();
-      else {
-        updatePlayerPanel();
-        renderTokens();
-      }
-    }
-
-    function openDiceModal(){
-      if(!gameStarted || modalLocked || gameOver) return;
-
-      const player = players[currentPlayer];
-      openModal({
-        badge:"🎲 擲骰子",
-        title:"輪到你了",
-        subtitle:`${player.avatar} ${player.name}，請按下按鈕擲骰子`,
-        dice:"🎲",
-        note:"按下後會先播放擲骰動畫，再進入下一個事件視窗。",
-        actions:[
-          {
-            label:"開始擲骰",
-            onClick: rollDiceAnimated
-          }
-        ]
-      });
-    }
-
-    function rollDiceAnimated(){
-      modalActions.innerHTML = "";
-      const faces = ["⚀","⚁","⚂","⚃","⚄","⚅"];
-      let count = 0;
-      modalDice.classList.add("rolling");
-
-      const interval = setInterval(() => {
-        modalDice.textContent = faces[Math.floor(Math.random() * 6)];
-        count++;
-        if(count >= 14){
-          clearInterval(interval);
-          modalDice.classList.remove("rolling");
-          const dice = Math.floor(Math.random() * 6) + 1;
-          modalDice.textContent = faces[dice - 1];
-          setTimeout(() => executeRoll(dice), 450);
-        }
-      }, 90);
-    }
-
-    function executeRoll(dice){
-      const player = players[currentPlayer];
-      const nextPos = Math.min(25, player.pos + dice);
-
-      addLog(`${player.name} 擲到 ${dice} 點，前進到第 ${nextPos} 格。`);
-      player.pos = nextPos;
-      updatePlayerPanel();
-      renderTokens();
-
-      if(checkWin(player, dice)) return;
-      if(handleLadderOrSnake(player, dice)) return;
-      if(checkWin(player, dice)) return;
-      if(handleSpecial(player, dice)) return;
-      if(checkWin(player, dice)) return;
-      if(handleQuestion(player, dice)) return;
-
-      openFreeModal(player, dice);
-    }
-
-    function checkWin(player, dice){
-      if(player.pos >= 25){
-        player.pos = 25;
-        gameOver = true;
-        updatePlayerPanel();
-        renderTokens();
-        addLog(`🏁 ${player.name} 到達終點，獲勝！`);
-
-        openModal({
-          badge:"🏁 遊戲結束",
-          title:"恭喜獲勝",
-          subtitle:`${player.avatar} ${player.name} 擲到 ${dice} 點，到達第 25 格`,
-          dice:"🏆",
-          text:`${player.name} 完成遊戲！`,
-          note:"可以重新開始，或返回設定頁重新設定玩家。",
-          actions:[
-            {
-              label:"關閉",
-              className:"secondary",
-              onClick: closeModal
-            }
-          ]
-        });
-        return true;
-      }
-      return false;
-    }
-
-    function handleLadderOrSnake(player, dice){
-      if(ladders[player.pos]){
-        const from = player.pos;
-        const to = ladders[player.pos];
-        player.pos = to;
-        updatePlayerPanel();
-        renderTokens();
-        addLog(`${player.name} 爬上梯子：從第 ${from} 格前進到第 ${to} 格。`);
-
-        openModal({
-          badge:"🪜 梯子",
-          title:"爬上梯子",
-          subtitle:`${player.avatar} ${player.name} 擲到 ${dice} 點，來到第 ${from} 格`,
-          dice:"🪜",
-          text:`你從第 ${from} 格前進到第 ${to} 格。`,
-          note:"這一格不需要回答問題。",
-          actions:[
-            {
-              label:"下一位玩家",
-              onClick: () => finishTurn()
-            }
-          ]
-        });
-        return true;
-      }
-
-      if(snakes[player.pos]){
-        const from = player.pos;
-        const to = snakes[player.pos];
-        player.pos = to;
-        updatePlayerPanel();
-        renderTokens();
-        addLog(`${player.name} 踩到蛇：從第 ${from} 格退回到第 ${to} 格。`);
-
-        openModal({
-          badge:"🐍 蛇",
-          title:"踩到蛇了",
-          subtitle:`${player.avatar} ${player.name} 擲到 ${dice} 點，來到第 ${from} 格`,
-          dice:"🐍",
-          text:`你從第 ${from} 格退回到第 ${to} 格。`,
-          note:"這一格不需要回答問題。",
-          actions:[
-            {
-              label:"下一位玩家",
-              onClick: () => finishTurn()
-            }
-          ]
-        });
-        return true;
-      }
-
-      return false;
-    }
-
-    function handleSpecial(player, dice){
-      const special = specials[player.pos];
-      if(!special) return false;
-
-      if(special.type === "rollAgain"){
-        addLog(`${player.name} 走到特殊格：再擲一次。`);
-        openModal({
-          badge:"🎲 特殊格",
-          title:"再擲一次",
-          subtitle:`${player.avatar} ${player.name} 擲到 ${dice} 點，來到第 ${player.pos} 格`,
-          dice:"🎲",
-          text:special.text,
-          note:special.note,
-          actions:[
-            {
-              label:"我知道了",
-              onClick: () => finishTurn(true)
-            }
-          ]
-        });
-        return true;
-      }
-
-      if(special.type === "forward2"){
-        const from = player.pos;
-        player.pos = Math.min(25, player.pos + 2);
-        updatePlayerPanel();
-        renderTokens();
-        addLog(`${player.name} 走到特殊格：從第 ${from} 格前進到第 ${player.pos} 格。`);
-
-        openModal({
-          badge:"⏩ 特殊格",
-          title:"前進兩格",
-          subtitle:`${player.avatar} ${player.name} 擲到 ${dice} 點，來到第 ${from} 格`,
-          dice:"⏩",
-          text:`你從第 ${from} 格前進到第 ${player.pos} 格。`,
-          note:special.note,
-          actions:[
-            {
-              label:"下一位玩家",
-              onClick: () => finishTurn()
-            }
-          ]
-        });
-        return true;
-      }
-
-      if(special.type === "back1"){
-        const from = player.pos;
-        player.pos = Math.max(1, player.pos - 1);
-        updatePlayerPanel();
-        renderTokens();
-        addLog(`${player.name} 走到特殊格：從第 ${from} 格後退到第 ${player.pos} 格。`);
-
-        openModal({
-          badge:"⏪ 特殊格",
-          title:"後退一格",
-          subtitle:`${player.avatar} ${player.name} 擲到 ${dice} 點，來到第 ${from} 格`,
-          dice:"⏪",
-          text:`你從第 ${from} 格後退到第 ${player.pos} 格。`,
-          note:special.note,
-          actions:[
-            {
-              label:"下一位玩家",
-              onClick: () => finishTurn()
-            }
-          ]
-        });
-        return true;
-      }
-
-      if(special.type === "dialogue"){
-        addLog(`${player.name} 走到特殊格：對話任務。`);
-        openModal({
-          badge:"👥 特殊格",
-          title:"對話任務",
-          subtitle:`${player.avatar} ${player.name} 擲到 ${dice} 點，來到第 ${player.pos} 格`,
-          dice:"💬",
-          text:special.text,
-          note:special.note,
-          actions:[
-            {
-              label:"完成對話",
-              onClick: () => finishTurn()
-            }
-          ]
-        });
-        return true;
-      }
-
-      return false;
-    }
-
-    function handleQuestion(player, dice){
-      const question = questionMap[player.pos];
-      if(!question) return false;
-
-      addLog(`${player.name} 走到問題格：第 ${player.pos} 格。`);
-      openModal({
-        badge:"🎯 問題格",
-        title:`第 ${player.pos} 格`,
-        subtitle:`${player.avatar} ${player.name} 擲到 ${dice} 點，來到第 ${player.pos} 格`,
-        dice:"❓",
-        question:question,
-        note:"請先讓學生口頭回答，再選擇答對或答錯。",
-        actions:[
-          {
-            label:"答對了",
-            className:"success",
-            onClick: () => {
-              addLog(`${player.name} 回答正確。`);
-              finishTurn();
-            }
-          },
-          {
-            label:"答錯了",
-            className:"danger",
-            onClick: () => {
-              const from = player.pos;
-              player.pos = Math.max(1, player.pos - 1);
-              updatePlayerPanel();
-              renderTokens();
-              addLog(`${player.name} 回答錯誤：從第 ${from} 格退到第 ${player.pos} 格。`);
-              finishTurn();
-            }
-          }
-        ]
-      });
-      return true;
-    }
-
-    function openFreeModal(player, dice){
-      addLog(`${player.name} 走到自由格。`);
-      openModal({
-        badge:"☁️ 自由格",
-        title:`第 ${player.pos} 格`,
-        subtitle:`${player.avatar} ${player.name} 擲到 ${dice} 點，來到第 ${player.pos} 格`,
-        dice:"☁️",
-        text:"這一格是自由格，沒有任務。",
-        note:"按下方按鈕後，輪到下一位玩家。",
-        actions:[
-          {
-            label:"下一位玩家",
-            onClick: () => finishTurn()
-          }
-        ]
-      });
-    }
-
-    function startGame(){
-      createPlayers();
-      currentPlayer = 0;
-      gameStarted = true;
-      gameOver = false;
-      modalLocked = false;
-      createBoard();
-      updatePlayerPanel();
-      renderTokens();
-      logEl.innerHTML = "";
-      addLog("遊戲開始。");
-      showScreen(gameScreen);
-    }
-
-    function restartGame(){
-      players.forEach(p => p.pos = 1);
-      currentPlayer = 0;
-      gameStarted = true;
-      gameOver = false;
-      modalLocked = false;
-      closeModal();
-      updatePlayerPanel();
-      renderTokens();
-      logEl.innerHTML = "";
-      addLog("遊戲重新開始。");
-    }
-
-    // 事件
-    playBtn.addEventListener("click", () => showScreen(selectScreen));
-    backHomeBtn.addEventListener("click", () => showScreen(startScreen));
-    backSelectBtn.addEventListener("click", () => showScreen(selectScreen));
-    goNameBtn.addEventListener("click", () => {
-      buildNameFields();
-      showScreen(nameScreen);
-    });
-    enterGameBtn.addEventListener("click", startGame);
-    backNameBtn.addEventListener("click", () => {
-      closeModal();
-      showScreen(nameScreen);
-    });
-    restartBtn.addEventListener("click", restartGame);
-    diceBtn.addEventListener("click", openDiceModal);
-
-    document.querySelectorAll(".choice-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        selectedPlayerCount = Number(btn.dataset.count);
-        updateChoiceSelection();
-      });
-    });
-
-    // 初始化
-    updateChoiceSelection();
-    buildNameFields();
-  </script>
 </body>
 </html>
