@@ -1,333 +1,1171 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
-<title>職場華語蛇梯遊戲</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>職場華語（二）紀錄與報告任務蛇梯遊戲</title>
+  <style>
+    * { box-sizing: border-box; }
 
-<style>
-body{
- margin:0;
- font-family:"Noto Sans TC",sans-serif;
- background:linear-gradient(135deg,#1f6f3e,#0f3d2e);
- color:white;
-}
+    :root {
+      --bg1: #0f172a;
+      --bg2: #1e3a8a;
+      --panel: rgba(15, 23, 42, 0.78);
+      --panel-soft: rgba(30, 41, 59, 0.82);
+      --line: rgba(255,255,255,0.12);
+      --text: #e5eefc;
+      --muted: #b8c7e6;
+      --gold: #f5c26b;
+      --pink: #ff5f7a;
+      --blue: #60a5fa;
+      --green: #4ade80;
+      --red: #f87171;
+      --shadow: 0 18px 40px rgba(0,0,0,0.35);
+    }
 
-/* 共用 */
-.center{
- display:flex;
- justify-content:center;
- align-items:center;
- height:100vh;
- flex-direction:column;
-}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14) 1px, transparent 1.6px) 0 0 / 120px 120px,
+        radial-gradient(circle at 80% 30%, rgba(255,255,255,0.12) 1px, transparent 1.6px) 0 0 / 180px 180px,
+        linear-gradient(180deg, #080b1f 0%, #132c5d 100%);
+      overflow-x: hidden;
+    }
 
-/* 封面 */
-.cover{
- background:url("cover.png") center/cover no-repeat;
-}
+    .screen {
+      min-height: 100vh;
+      display: none;
+      padding: 28px 20px;
+      animation: fadeIn 0.35s ease;
+    }
 
-/* 按鈕 */
-.btn{
- padding:12px 25px;
- border-radius:12px;
- border:none;
- cursor:pointer;
- font-size:16px;
- margin:5px;
-}
+    .screen.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-.primary{background:#f59e0b;color:white;}
-.danger{background:#ef4444;color:white;}
-.gray{background:#334155;color:white;}
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-/* 面板 */
-.panel{
- background:#0f172a;
- padding:30px;
- border-radius:20px;
- width:500px;
-}
+    .hero {
+      width: min(760px, 100%);
+      text-align: center;
+      padding: 40px 24px;
+    }
 
-/* 棋盤 */
-.board{
- display:grid;
- grid-template-columns:repeat(5,100px);
- gap:10px;
- margin-top:20px;
-}
+    .logo {
+      font-size: 64px;
+      margin-bottom: 10px;
+      filter: drop-shadow(0 0 16px rgba(255,255,255,0.16));
+    }
 
-.cell{
- width:100px;
- height:100px;
- background:#1e293b;
- border-radius:15px;
- display:flex;
- justify-content:center;
- align-items:center;
- position:relative;
-}
+    .title-zh {
+      font-size: clamp(34px, 5vw, 56px);
+      font-weight: 900;
+      color: var(--gold);
+      text-shadow: 0 0 18px rgba(245, 194, 107, 0.35);
+      margin-bottom: 8px;
+    }
 
-.player{
- position:absolute;
- bottom:5px;
- font-size:22px;
-}
+    .title-en {
+      font-size: clamp(20px, 3vw, 34px);
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 28px;
+      color: #ffe7ee;
+      text-shadow: 0 0 14px rgba(255,255,255,0.18);
+    }
 
-/* 骰子 */
-.dice-btn{
- position:fixed;
- bottom:20px;
- right:20px;
- font-size:30px;
- padding:15px;
- border-radius:15px;
- background:white;
- color:black;
- cursor:pointer;
-}
+    .hero-card,
+    .setup-card,
+    .game-shell,
+    .modal-content {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
 
-/* Modal */
-.modal{
- position:fixed;
- top:0;
- left:0;
- width:100%;
- height:100%;
- background:rgba(0,0,0,0.7);
- display:none;
- justify-content:center;
- align-items:center;
-}
+    .hero-card {
+      border-radius: 24px;
+      padding: 30px 24px;
+      width: min(520px, 100%);
+      margin: 0 auto;
+    }
 
-.modal-box{
- background:white;
- color:black;
- padding:30px;
- border-radius:20px;
- width:400px;
- text-align:center;
-}
+    .subtitle {
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
 
-.big{
- font-size:24px;
- margin-bottom:20px;
-}
-</style>
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 24px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      color: white;
+      background: linear-gradient(180deg, #f6ca7d 0%, #d89a42 100%);
+      box-shadow: 0 8px 0 rgba(126, 76, 15, 0.45);
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 5px 0 rgba(126, 76, 15, 0.45);
+    }
+
+    .btn.secondary {
+      background: linear-gradient(180deg, #ff6f86 0%, #d84568 100%);
+      box-shadow: 0 8px 0 rgba(122, 24, 46, 0.45);
+    }
+
+    .btn.ghost {
+      background: linear-gradient(180deg, #6ea7ff 0%, #2f67d4 100%);
+      box-shadow: 0 8px 0 rgba(20, 47, 101, 0.45);
+    }
+
+    .setup-wrap {
+      width: min(860px, 100%);
+    }
+
+    .setup-card {
+      border-radius: 24px;
+      padding: 24px;
+    }
+
+    .setup-title {
+      font-size: 30px;
+      font-weight: 900;
+      margin-bottom: 8px;
+      color: var(--gold);
+    }
+
+    .setup-subtitle {
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .field {
+      text-align: left;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .field select,
+    .field input {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.08);
+      color: white;
+      padding: 12px 14px;
+      font: inherit;
+    }
+
+    .field input::placeholder {
+      color: #d0dbf4;
+    }
+
+    .field select option {
+      color: black;
+    }
+
+    .setup-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 22px;
+      flex-wrap: wrap;
+    }
+
+    .game-root {
+      width: min(1280px, 100%);
+    }
+
+    .game-shell {
+      border-radius: 26px;
+      padding: 22px;
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .game-title {
+      font-size: 30px;
+      font-weight: 900;
+      color: var(--gold);
+    }
+
+    .turn-badge {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--line);
+      font-weight: 700;
+    }
+
+    .game-layout {
+      display: grid;
+      grid-template-columns: minmax(620px, 1.8fr) minmax(260px, 0.8fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .board-area {
+      display: flex;
+      justify-content: center;
+    }
+
+    .board {
+      width: 610px;
+      display: grid;
+      grid-template-columns: repeat(5, 120px);
+      grid-template-rows: repeat(5, 120px);
+      gap: 2px;
+      background: rgba(255,255,255,0.18);
+      padding: 2px;
+      border-radius: 18px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+    }
+
+    .cell {
+      position: relative;
+      border-radius: 0;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: left;
+      border: 1px solid rgba(255,255,255,0.10);
+      overflow: hidden;
+    }
+
+    .cell.start { background: linear-gradient(180deg, #193b75 0%, #244e93 100%); }
+    .cell.finish { background: linear-gradient(180deg, #5e2f88 0%, #7c42ad 100%); }
+    .cell.question { background: linear-gradient(180deg, #5d4d11 0%, #7d6918 100%); }
+    .cell.ladder { background: linear-gradient(180deg, #1b5c36 0%, #257648 100%); }
+    .cell.snake { background: linear-gradient(180deg, #70263a 0%, #8f3148 100%); }
+    .cell.special { background: linear-gradient(180deg, #1c5572 0%, #287194 100%); }
+    .cell.free { background: linear-gradient(180deg, #39465a 0%, #4a5870 100%); }
+
+    .cell-number {
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1;
+      opacity: 0.95;
+    }
+
+    .cell-icon {
+      align-self: center;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .cell-label {
+      font-size: 13px;
+      color: #dce7ff;
+      line-height: 1.25;
+      min-height: 34px;
+    }
+
+    .token-layer {
+      position: absolute;
+      right: 8px;
+      bottom: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+      max-width: 58px;
+    }
+
+    .token {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.95);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.22);
+      cursor: default;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      position: relative;
+    }
+
+    .token.active {
+      cursor: pointer;
+      transform: scale(1.08);
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.12), 0 8px 16px rgba(0,0,0,0.28);
+    }
+
+    .token.active:hover {
+      transform: scale(1.15);
+    }
+
+    .p1 { background: #ef4444; }
+    .p2 { background: #3b82f6; }
+    .p3 { background: #22c55e; }
+    .p4 { background: #f59e0b; }
+
+    .side-panel {
+      display: grid;
+      gap: 14px;
+    }
+
+    .info-card {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      text-align: left;
+    }
+
+    .info-card h3 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      color: var(--gold);
+    }
+
+    .player-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .player-item,
+    .log-item {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 10px 12px;
+      line-height: 1.5;
+    }
+
+    .log {
+      max-height: 280px;
+      overflow-y: auto;
+      display: grid;
+      gap: 8px;
+    }
+
+    .helper {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.62);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: 0.22s ease;
+      padding: 18px;
+      z-index: 1000;
+    }
+
+    .modal.show {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .modal-content {
+      width: 100%;
+      max-width: 580px;
+      border-radius: 22px;
+      padding: 26px;
+      text-align: center;
+    }
+
+    .modal-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid var(--line);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .modal-title {
+      font-size: 30px;
+      font-weight: 900;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .modal-subtitle {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 14px;
+      white-space: pre-line;
+    }
+
+    .dice-face {
+      font-size: 56px;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    .modal-text {
+      font-size: 22px;
+      line-height: 1.7;
+      margin-bottom: 14px;
+      white-space: pre-line;
+    }
+
+    .modal-note {
+      background: rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 12px;
+      color: #d6e3fb;
+      line-height: 1.7;
+      font-size: 14px;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 1120px) {
+      .game-layout {
+        grid-template-columns: 1fr;
+      }
+      .board {
+        width: min(610px, 100%);
+        grid-template-columns: repeat(5, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+        aspect-ratio: 1 / 1;
+      }
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .form-grid,
+      .name-grid {
+        grid-template-columns: 1fr;
+      }
+      .game-header {
+        justify-content: center;
+      }
+      .modal-title {
+        font-size: 24px;
+      }
+      .modal-text {
+        font-size: 18px;
+      }
+    }
+  </style>
 </head>
-
 <body>
+  <!-- 首頁 -->
+  <section id="startScreen" class="screen active">
+    <div class="hero">
+      <div class="logo">🎮</div>
+      <div class="title-zh">職場華語（二）</div>
+      <div class="title-en">紀錄與報告任務蛇梯遊戲</div>
+      <div class="hero-card">
+        <div class="subtitle">
+          先進入老師設定頁，完成玩家與遊戲設定後，再開始遊戲。
+        </div>
+        <button class="btn" id="goSetupBtn">開始設定</button>
+      </div>
+    </div>
+  </section>
 
-<!-- 封面 -->
-<div id="p1" class="center cover">
-<button class="btn primary" onclick="go(2)">開始遊戲</button>
-</div>
+  <!-- 設定頁 -->
+  <section id="setupScreen" class="screen">
+    <div class="setup-wrap">
+      <div class="setup-card">
+        <div class="setup-title">老師遊戲設定</div>
+        <div class="setup-subtitle">
+          請先設定玩家人數與學生名字，完成後再進入遊戲畫面。
+        </div>
 
-<!-- 人數 -->
-<div id="p2" class="center" style="display:none;">
-<div class="panel">
-<h2>選擇玩家人數</h2>
-<button class="btn primary" onclick="setP(2)">👮👮</button>
-<button class="btn primary" onclick="setP(3)">👮👮👮</button>
-<button class="btn primary" onclick="setP(4)">👮👮👮👮</button>
-</div>
-</div>
+        <div class="form-grid">
+          <div class="field full">
+            <label for="playerCount">玩家人數</label>
+            <select id="playerCount">
+              <option value="1">1 人</option>
+              <option value="2" selected>2 人</option>
+              <option value="3">3 人</option>
+              <option value="4">4 人</option>
+            </select>
+          </div>
 
-<!-- 名字 -->
-<div id="p3" class="center" style="display:none;">
-<div class="panel">
-<h2>輸入玩家名稱</h2>
-<div id="names"></div>
-<br>
-<button class="btn primary" onclick="startGame()">進入遊戲</button>
-</div>
-</div>
+          <div class="field">
+            <label for="player1Name">玩家 1 姓名</label>
+            <input id="player1Name" type="text" value="學生1" />
+          </div>
+          <div class="field">
+            <label for="player2Name">玩家 2 姓名</label>
+            <input id="player2Name" type="text" value="學生2" />
+          </div>
+          <div class="field">
+            <label for="player3Name">玩家 3 姓名</label>
+            <input id="player3Name" type="text" value="學生3" />
+          </div>
+          <div class="field">
+            <label for="player4Name">玩家 4 姓名</label>
+            <input id="player4Name" type="text" value="學生4" />
+          </div>
+        </div>
 
-<!-- 遊戲 -->
-<div id="game" style="display:none;padding:20px;">
-<h2 id="turn"></h2>
-<div class="board" id="board"></div>
-</div>
+        <div class="setup-actions">
+          <button class="btn secondary" id="backToStartBtn">回首頁</button>
+          <button class="btn" id="enterGameBtn">進入遊戲</button>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<!-- 骰子 -->
-<div class="dice-btn" onclick="rollDice()">🎲</div>
+  <!-- 遊戲頁 -->
+  <section id="gameScreen" class="screen">
+    <div class="game-root">
+      <div class="game-shell">
+        <div class="game-header">
+          <div class="game-title">職場華語（二）紀錄與報告任務蛇梯遊戲</div>
+          <div class="turn-badge">目前玩家：<span id="currentTurnText">-</span></div>
+        </div>
 
-<!-- 骰子視窗 -->
-<div class="modal" id="diceModal">
-<div class="modal-box">
-<div class="big" id="diceText"></div>
-<button class="btn primary" onclick="move()">確定</button>
-</div>
-</div>
+        <div class="game-layout">
+          <div class="board-area">
+            <div id="board" class="board"></div>
+          </div>
 
-<!-- 任務 -->
-<div class="modal" id="taskModal">
-<div class="modal-box">
-<div class="big" id="question"></div>
-<div id="taskBtns"></div>
-</div>
-</div>
+          <div class="side-panel">
+            <div class="info-card">
+              <h3>玩家狀態</h3>
+              <div id="playerList" class="player-list"></div>
+            </div>
 
-<script>
+            <div class="info-card">
+              <h3>遊戲說明</h3>
+              <div class="helper">
+                請直接點選「目前玩家」的棋子。<br>
+                點擊後會跳出擲骰子視窗，再依結果進入任務視窗。
+              </div>
+            </div>
 
-/* ===== 狀態 ===== */
-let playerCount=0;
-let players=[];
-let positions=[];
-let turn=0;
-let dice=0;
+            <div class="info-card">
+              <h3>遊戲紀錄</h3>
+              <div id="log" class="log"></div>
+            </div>
 
-/* ===== 題庫 ===== */
-const bank=[
-// 問答
-"請回答：車禍是什麼時候發生的？",
-"請回答：車禍大概幾點發生？",
-"請回答：車禍是在哪裡發生的？",
-"請回答：車禍是在中山路和和平路的路口發生的嗎？",
-"請回答：你騎機車還是開車？對方呢？",
-"請回答：你的車號是多少？",
-"請回答：對方的車號是多少？",
-"請回答：車禍是怎麼發生的？",
-"請回答：你那個時候要直走、右轉還是左轉？",
-"請回答：對方的車是從哪裡來的？",
-"請回答：有人受傷嗎？",
-"請回答：車子有損壞嗎？",
-"請回答：事故發生以後，你做了什麼？",
+            <div class="info-card">
+              <div class="controls-row" style="justify-content:center;">
+                <button class="btn secondary" id="backToSetupBtn">返回設定</button>
+                <button class="btn ghost" id="restartGameBtn">重新開始</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-// 造句
-"造句：車禍","造句：發生","造句：路口","造句：十字路口","造句：當事人",
-"造句：車種","造句：車號","造句：直走","造句：右轉","造句：左轉",
-"造句：等紅燈","造句：停在路邊","造句：擦撞","造句：突然","造句：巷子",
-"造句：開出來","造句：來不及","造句：煞車","造句：撞到","造句：超車",
-"造句：速度","造句：倒車","造句：摔倒","造句：撞凹","造句：倒",
-"造句：按喇叭","造句：停下來","造句：受傷","造句：擦傷","造句：其他",
-"造句：骨折","造句：流血","造句：車燈","造句：壞","造句：對方",
-"造句：車門","造句：拍照","造句：報警","造句：救護車"
-];
+  <!-- 通用視窗 -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <div id="modalBadge" class="modal-badge">事件</div>
+      <div id="modalTitle" class="modal-title">標題</div>
+      <div id="modalSubtitle" class="modal-subtitle"></div>
+      <div id="modalDice" class="dice-face">🎲</div>
+      <div id="modalText" class="modal-text"></div>
+      <div id="modalNote" class="modal-note"></div>
+      <div id="modalActions" class="modal-actions"></div>
+    </div>
+  </div>
 
-let pool=[...bank];
+  <script>
+    const boardOrder = [
+      21,22,23,24,25,
+      20,19,18,17,16,
+      11,12,13,14,15,
+      10,9,8,7,6,
+      1,2,3,4,5
+    ];
 
-function getQ(){
- if(pool.length===0) pool=[...bank];
- let i=Math.floor(Math.random()*pool.length);
- let q=pool[i];
- pool.splice(i,1);
- return q;
-}
+    const questionMap = {
+      2: "車禍是什麼時候發生的？",
+      4: "車禍大概幾點發生？",
+      5: "車禍是在哪裡發生的？",
+      7: "車禍是在中山路和和平路的路口發生的嗎？",
+      9: "你騎機車還是開車？對方呢？",
+      11: "你的車號是多少？",
+      13: "對方的車號是多少？",
+      15: "車禍是怎麼發生的？",
+      17: "你那個時候要直走、右轉還是左轉？",
+      18: "對方的車是從哪裡來的？",
+      21: "有人受傷嗎？",
+      22: "車子有損壞嗎？",
+      24: "事故發生以後，你做了什麼？"
+    };
 
-/* ===== 頁面 ===== */
-function go(n){
- document.querySelectorAll("body > div").forEach(d=>d.style.display="none");
- document.getElementById("p"+n).style.display="flex";
-}
+    const ladders = { 3: 8, 8: 14, 14: 20 };
+    const snakes = { 12: 6, 19: 10, 23: 16 };
+    const specials = {
+      6: { type: "rollAgain", label: "🎲 再擲一次", text: "你抽到特殊格：再擲一次。", note: "回答完後，由同一位玩家再次點自己的棋子擲骰。" },
+      10: { type: "forward2", label: "⏩ 前進兩格", text: "你抽到特殊格：前進兩格。", note: "系統會自動幫你前進兩格。" },
+      16: { type: "back1", label: "⏪ 後退一格", text: "你抽到特殊格：後退一格。", note: "系統會自動幫你後退一格。" },
+      20: { type: "dialogue", label: "👥 對話任務", text: "請和同學用兩句話做簡短對話。", note: "完成對話後，再按下方按鈕。" }
+    };
 
-/* ===== 玩家 ===== */
-function setP(n){
- playerCount=n;
- let html="";
- for(let i=0;i<n;i++){
-  html+=`<input id="p${i}" placeholder="玩家${i+1}" style="width:90%;padding:10px;margin:5px;"><br>`;
- }
- document.getElementById("names").innerHTML=html;
- go(3);
-}
+    const playerColors = ["p1", "p2", "p3", "p4"];
 
-/* ⭐ 修好這裡 */
-function startGame(){
- players=[];
- positions=[];
+    const startScreen = document.getElementById("startScreen");
+    const setupScreen = document.getElementById("setupScreen");
+    const gameScreen = document.getElementById("gameScreen");
 
- for(let i=0;i<playerCount;i++){
-  let name=document.getElementById("p"+i).value.trim();
-  players.push(name || ("玩家"+(i+1)));
-  positions.push(1);
- }
+    const goSetupBtn = document.getElementById("goSetupBtn");
+    const backToStartBtn = document.getElementById("backToStartBtn");
+    const enterGameBtn = document.getElementById("enterGameBtn");
+    const backToSetupBtn = document.getElementById("backToSetupBtn");
+    const restartGameBtn = document.getElementById("restartGameBtn");
 
- turn=0;
+    const playerCountEl = document.getElementById("playerCount");
+    const playerNameInputs = [
+      document.getElementById("player1Name"),
+      document.getElementById("player2Name"),
+      document.getElementById("player3Name"),
+      document.getElementById("player4Name")
+    ];
 
- document.querySelectorAll("body > div").forEach(d=>d.style.display="none");
- document.getElementById("game").style.display="block";
+    const boardEl = document.getElementById("board");
+    const currentTurnText = document.getElementById("currentTurnText");
+    const playerListEl = document.getElementById("playerList");
+    const logEl = document.getElementById("log");
 
- draw();
-}
+    const modal = document.getElementById("modal");
+    const modalBadge = document.getElementById("modalBadge");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalSubtitle = document.getElementById("modalSubtitle");
+    const modalDice = document.getElementById("modalDice");
+    const modalText = document.getElementById("modalText");
+    const modalNote = document.getElementById("modalNote");
+    const modalActions = document.getElementById("modalActions");
 
-/* ===== 棋盤 ===== */
-function draw(){
- let b=document.getElementById("board");
- b.innerHTML="";
+    let players = [];
+    let currentPlayer = 0;
+    let gameStarted = false;
+    let modalLocked = false;
+    let awaitingDice = false;
+    let gameOver = false;
 
- for(let i=1;i<=25;i++){
-  let c=document.createElement("div");
-  c.className="cell";
-  c.innerText=i;
+    function showScreen(screenEl) {
+      [startScreen, setupScreen, gameScreen].forEach(el => el.classList.remove("active"));
+      screenEl.classList.add("active");
+    }
 
-  players.forEach((p,idx)=>{
-   if(positions[idx]==i){
-    c.innerHTML+=`<div class="player">👮</div>`;
-   }
-  });
+    function updateNameInputs() {
+      const count = Number(playerCountEl.value);
+      playerNameInputs.forEach((input, index) => {
+        input.disabled = index >= count;
+        input.parentElement.style.opacity = index >= count ? "0.45" : "1";
+      });
+    }
 
-  b.appendChild(c);
- }
+    function getCellType(num) {
+      if (num === 1) return "start";
+      if (num === 25) return "finish";
+      if (questionMap[num]) return "question";
+      if (ladders[num]) return "ladder";
+      if (snakes[num]) return "snake";
+      if (specials[num]) return "special";
+      return "free";
+    }
 
- document.getElementById("turn").innerText="輪到："+players[turn];
-}
+    function getCellDisplay(num) {
+      if (num === 1) return { icon: "🚩", label: "起點" };
+      if (num === 25) return { icon: "🏁", label: "終點" };
+      if (questionMap[num]) return { icon: "🎯", label: "回答問題" };
+      if (ladders[num]) return { icon: "🪜", label: `${num} → ${ladders[num]}` };
+      if (snakes[num]) return { icon: "🐍", label: `${num} → ${snakes[num]}` };
+      if (specials[num]) return { icon: "🎲", label: specials[num].label.replace(/^[^\s]+\s/, "") };
+      return { icon: "☁️", label: "自由格" };
+    }
 
-/* ===== 骰子 ===== */
-function rollDice(){
- dice=Math.floor(Math.random()*6)+1;
- document.getElementById("diceText").innerText="🎲 "+dice;
- document.getElementById("diceModal").style.display="flex";
-}
+    function createBoard() {
+      boardEl.innerHTML = "";
+      boardOrder.forEach(num => {
+        const type = getCellType(num);
+        const display = getCellDisplay(num);
 
-function move(){
- document.getElementById("diceModal").style.display="none";
+        const cell = document.createElement("div");
+        cell.className = `cell ${type}`;
+        cell.dataset.num = num;
 
- positions[turn]+=dice;
- if(positions[turn]>25) positions[turn]=25;
+        cell.innerHTML = `
+          <div class="cell-number">${num}</div>
+          <div class="cell-icon">${display.icon}</div>
+          <div class="cell-label">${display.label}</div>
+          <div class="token-layer"></div>
+        `;
 
- showTask();
-}
+        boardEl.appendChild(cell);
+      });
+    }
 
-/* ===== 任務 ===== */
-function showTask(){
- let q=getQ();
- document.getElementById("question").innerText=q;
+    function createPlayers() {
+      const count = Number(playerCountEl.value);
+      players = [];
 
- let btns=document.getElementById("taskBtns");
+      for (let i = 0; i < count; i++) {
+        players.push({
+          name: playerNameInputs[i].value.trim() || `玩家${i + 1}`,
+          pos: 1,
+          color: playerColors[i]
+        });
+      }
+    }
 
- if(q.includes("造句")){
-  btns.innerHTML=`<button class="btn primary" onclick="next()">完成</button>`;
- }else{
-  btns.innerHTML=`
-  <button class="btn primary" onclick="correct()">答對</button>
-  <button class="btn danger" onclick="wrong()">答錯</button>`;
- }
+    function renderTokens() {
+      document.querySelectorAll(".token-layer").forEach(layer => layer.innerHTML = "");
 
- document.getElementById("taskModal").style.display="flex";
-}
+      players.forEach((player, index) => {
+        const cell = [...document.querySelectorAll(".cell")].find(c => Number(c.dataset.num) === player.pos);
+        if (!cell) return;
+        const layer = cell.querySelector(".token-layer");
 
-function correct(){
- document.getElementById("taskModal").style.display="none";
- next();
-}
+        const token = document.createElement("div");
+        token.className = `token ${player.color} ${index === currentPlayer && !modalLocked && !gameOver ? "active" : ""}`;
+        token.title = player.name;
 
-function wrong(){
- positions[turn]--;
- document.getElementById("taskModal").style.display="none";
- next();
-}
+        if (index === currentPlayer && !modalLocked && !gameOver) {
+          token.addEventListener("click", () => openDiceModal());
+        }
 
-function next(){
- if(positions[turn]>=25){
-  alert(players[turn]+" 贏了！");
-  location.reload();
- }
+        layer.appendChild(token);
+      });
+    }
 
- turn=(turn+1)%playerCount;
- draw();
-}
+    function updatePlayerPanel() {
+      playerListEl.innerHTML = "";
+      players.forEach((player, index) => {
+        const item = document.createElement("div");
+        item.className = "player-item";
+        item.innerHTML = `<strong>${player.name}</strong>：第 ${player.pos} 格 ${index === currentPlayer && !gameOver ? "（目前玩家）" : ""}`;
+        playerListEl.appendChild(item);
+      });
 
-</script>
+      currentTurnText.textContent = gameOver ? "遊戲結束" : (players[currentPlayer]?.name || "-");
+    }
 
+    function addLog(text) {
+      const item = document.createElement("div");
+      item.className = "log-item";
+      item.textContent = text;
+      logEl.prepend(item);
+    }
+
+    function openModal({ badge, title, subtitle, dice = "🎲", text = "", note = "", actions = [] }) {
+      modalBadge.textContent = badge;
+      modalTitle.textContent = title;
+      modalSubtitle.textContent = subtitle || "";
+      modalDice.textContent = dice;
+      modalText.textContent = text;
+      modalNote.textContent = note;
+      modalActions.innerHTML = "";
+
+      actions.forEach(action => {
+        const btn = document.createElement("button");
+        btn.textContent = action.label;
+        if (action.className) btn.className = `btn ${action.className}`;
+        else btn.className = "btn";
+        btn.addEventListener("click", action.onClick);
+        modalActions.appendChild(btn);
+      });
+
+      modal.classList.add("show");
+      modalLocked = true;
+      renderTokens();
+    }
+
+    function closeModal() {
+      modal.classList.remove("show");
+      modalLocked = false;
+      renderTokens();
+    }
+
+    function nextTurn() {
+      currentPlayer = (currentPlayer + 1) % players.length;
+      updatePlayerPanel();
+      renderTokens();
+    }
+
+    function finishTurn(keepSamePlayer = false) {
+      closeModal();
+      if (gameOver) return;
+      if (!keepSamePlayer) nextTurn();
+      else {
+        updatePlayerPanel();
+        renderTokens();
+      }
+    }
+
+    function openDiceModal() {
+      if (!gameStarted || modalLocked || gameOver) return;
+
+      const player = players[currentPlayer];
+
+      openModal({
+        badge: "🎲 擲骰子",
+        title: "輪到你了",
+        subtitle: `${player.name}，請按下按鈕擲骰子`,
+        dice: "🎲",
+        text: "點選下方按鈕開始本回合。",
+        note: "擲骰後會自動跳到下一個事件視窗。",
+        actions: [
+          {
+            label: "擲骰子",
+            onClick: () => executeRoll()
+          }
+        ]
+      });
+    }
+
+    function executeRoll() {
+      const player = players[currentPlayer];
+      const dice = Math.floor(Math.random() * 6) + 1;
+      let nextPos = Math.min(25, player.pos + dice);
+
+      addLog(`${player.name} 擲到 ${dice} 點，前進到第 ${nextPos} 格。`);
+      player.pos = nextPos;
+
+      updatePlayerPanel();
+      renderTokens();
+
+      if (checkWin(player, dice)) return;
+      if (handleLadderOrSnake(player, dice)) return;
+      if (checkWin(player, dice)) return;
+      if (handleSpecial(player, dice)) return;
+      if (checkWin(player, dice)) return;
+      if (handleQuestion(player, dice)) return;
+
+      openFreeModal(player, dice);
+    }
+
+    function checkWin(player, dice) {
+      if (player.pos >= 25) {
+        player.pos = 25;
+        gameOver = true;
+        updatePlayerPanel();
+        renderTokens();
+        addLog(`🏁 ${player.name} 到達終點，獲勝！`);
+
+        openModal({
+          badge: "🏁 遊戲結束",
+          title: "恭喜獲勝",
+          subtitle: `${player.name} 擲到 ${dice} 點，到達第 25 格`,
+          dice: `🎲 ${dice}`,
+          text: `${player.name} 完成遊戲！`,
+          note: "可以返回設定頁重新設定玩家，或重新開始同一組遊戲。",
+          actions: [
+            {
+              label: "關閉",
+              className: "secondary",
+              onClick: () => closeModal()
+            }
+          ]
+        });
+        return true;
+      }
+      return false;
+    }
+
+    function handleLadderOrSnake(player, dice) {
+      if (ladders[player.pos]) {
+        const from = player.pos;
+        const to = ladders[player.pos];
+        player.pos = to;
+        updatePlayerPanel();
+        renderTokens();
+        addLog(`${player.name} 爬上梯子：從第 ${from} 格前進到第 ${to} 格。`);
+
+        openModal({
+          badge: "🪜 梯子",
+          title: "爬上梯子",
+          subtitle: `${player.name} 擲到 ${dice} 點，來到第 ${from} 格`,
+          dice: `🎲 ${dice}`,
+          text: `你從第 ${from} 格前進到第 ${to} 格。`,
+          note: "這一格不需要回答問題。",
+          actions: [
+            {
+              label: "下一位玩家",
+              onClick: () => finishTurn()
+            }
+          ]
+        });
+        return true;
+      }
+
+      if (snakes[player.pos]) {
+        const from = player.pos;
+        const to = snakes[player.pos];
+        player.pos = to;
+        updatePlayerPanel();
+        renderTokens();
+        addLog(`${player.name} 踩到蛇：從第 ${from} 格退回到第 ${to} 格。`);
+
+        openModal({
+          badge: "🐍 蛇",
+          title: "踩到蛇了",
+          subtitle: `${player.name} 擲到 ${dice} 點，來到第 ${from} 格`,
+          dice: `🎲 ${dice}`,
+          text: `你從第 ${from} 格退回到第 ${to} 格。`,
+          note: "這一格不需要回答問題。",
+          actions: [
+            {
+              label: "下一位玩家",
+              onClick: () => finishTurn()
+            }
+          ]
+        });
+        return true;
+      }
+
+      return false;
+    }
+
+    function handleSpecial(player, dice) {
+      const special = specials[player.pos];
+      if (!special) return false;
+
+      if (special.type === "rollAgain") {
+        addLog(`${player.name} 走到特殊格：再擲一次。`);
+
+        openModal({
+          badge: "🎲 特殊格",
+          title: "再擲一次",
+          subtitle: `${player.name} 擲到 ${dice} 點，來到第 ${player.pos} 格`,
+          dice: `🎲 ${dice}`,
+          text: special.text,
+          note: special.note,
+          actions: [
+            {
+              label: "我知道了",
+              onClick: () => finishTurn(true)
+            }
+          ]
+        });
+        return true;
+      }
+
+      if (special.type === "forward2") {
+        const from = player.pos;
+        player.pos = Math.min(25, player.pos + 2);
+        updatePlayerPanel();
+        renderTokens();
+        addLog(`${player.name} 走到特殊格：從第 ${from} 格前進到第 ${player.pos} 格。`);
+
+        openModal({
+          badge: "⏩ 特殊格",
+          title: "前進兩格",
+          subtitle: `${player.name} 擲到 ${dice} 點，來到第 ${from} 格`,
+          dice: `🎲 ${dice}`,
+          text: `你從第 ${from} 格前進到第 ${player.pos} 格。`,
+          note: special.note,
+          actions: [
+            {
+              label: "下一位玩家",
+              onClick: () => finishTurn()
+            }
+          ]
+        });
+        return true;
+      }
+
+      if (special.type === "back1") {
+        const from = player.pos;
+        player.pos = Math.max(1, player.pos - 1);
+        updatePlayerPanel();
+        renderTokens();
+        addLog(`${player.name} 走到特殊格：從第 ${from} 格後退到第 ${player.pos} 格。`);
+
+        openModal({
+          badge: "⏪ 特殊格",
+          title: "後退一格",
+          subtitle: `${player.name} 擲到 ${dice} 點，來到第 ${from} 格`,
+          dice: `🎲 ${dice}`,
+          text: `你從第 ${from} 格後退到第 ${player.pos} 格。`,
+          note: special.note,
+          actions: [
+            {
+              label: "下一位玩家",
+              onClick: () => finishTurn()
+            }
+          ]
+        });
+        return true;
+      }
+
+      if (special.type === "dialogue") {
+        addLog(`${player.name} 走到特殊格：對話任務。`);
+
+        openModal({
+          badge: "👥 特殊格",
+          title: "對話任務",
+          subtitle: `${player.name} 擲到 ${dice} 點，來到第 ${player.pos} 格`,
+          dice: `🎲 ${dice}`,
+          text: special.text,
+          note: special.note,
+          actions: [
+            {
+              label: "完成對話",
+              onClick: () => finishTurn()
+            }
+          ]
+        });
+        return true;
+      }
+
+      return false;
+    }
+
+    function handleQuestion(player, dice) {
+      const question = questionMap[player.pos];
+      if (!question) return false;
+
+      addLog(`${player.name} 走到問題格：第 ${player.pos} 格。`);
+
+      openModal({
+        badge: "🎯 回答問題",
+        title: `第 ${player.pos} 格`,
+        subtitle: `${player.name} 擲到 ${dice} 點，來到第 ${player.pos} 格`,
+        dice: `🎲 ${dice}`,
+        text: question,
+        note: "請先讓學生口頭回答，再選擇答對或答錯。",
+        actions: [
+          {
+            label: "答對了",
+            className: "success",
+            onClick: () => {
+              addLog(`${player.name} 回答正確。`);
+              finishTurn();
+            }
+          },
+          {
+            label: "答錯了",
+            className: "secondary",
+            onClick: () => {
+              const from = player.pos;
+              player.pos = Math.max(1, player.pos - 1);
+              updatePlayerPanel();
+              renderTokens();
+              addLog(`${player.name} 回答錯誤：從第 ${from} 格退到第 ${player.pos} 格。`);
+              finishTurn();
+            }
+          }
+        ]
+      });
+
+      return true;
+    }
+
+    function openFreeModal(player, dice) {
+      addLog(`${player.name} 走到自由格。`);
+
+      openModal({
+        badge: "☁️ 自由格",
+        title: `第 ${player.pos} 格`,
+        subtitle: `${player.name} 擲到 ${dice} 點，來到第 ${player.pos} 格`,
+        dice: `🎲 ${dice}`,
+        text: "這一格是自由格，沒有任務。",
+        note: "按下方按鈕後，輪到下一位玩家。",
+        actions: [
+          {
+            label: "下一位玩家",
+            onClick: () => finishTurn()
+          }
+        ]
+      });
+    }
+
+    function startGame() {
+      createPlayers();
+      currentPlayer = 0;
+      gameStarted = true;
+      gameOver = false;
+      modalLocked = false;
+      createBoard();
+      updatePlayerPanel();
+      renderTokens();
+      logEl.innerHTML = "";
+      addLog("遊戲開始。");
+      showScreen(gameScreen);
+    }
+
+    function restartCurrentGame() {
+      players.forEach(p => p.pos = 1);
+      currentPlayer = 0;
+      gameStarted = true;
+      gameOver = false;
+      modalLocked = false;
+      closeModal();
+      updatePlayerPanel();
+      renderTokens();
+      logEl.innerHTML = "";
+      addLog("遊戲重新開始。");
+    }
+
+    // events
+    goSetupBtn.addEventListener("click", () => showScreen(setupScreen));
+    backToStartBtn.addEventListener("click", () => showScreen(startScreen));
+    backToSetupBtn.addEventListener("click", () => {
+      closeModal();
+      showScreen(setupScreen);
+    });
+    enterGameBtn.addEventListener("click", startGame);
+    restartGameBtn.addEventListener("click", restartCurrentGame);
+    playerCountEl.addEventListener("change", updateNameInputs);
+
+    // init
+    createBoard();
+    updateNameInputs();
+  </script>
 </body>
 </html>
