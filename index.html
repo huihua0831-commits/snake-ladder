@@ -8,22 +8,24 @@
     * { box-sizing: border-box; }
 
     :root{
-      --bg-dark:#0f172a;
-      --bg-mid:#1d4d2d;
-      --panel:rgba(16,24,39,.82);
-      --panel-soft:rgba(24,34,52,.88);
+      --bg-green-1:#1e5c24;
+      --bg-green-2:#2f7a35;
+      --panel:#0d2136ee;
+      --panel-soft:#122846ee;
       --line:rgba(255,255,255,.14);
-      --text:#f5f7ff;
-      --muted:#d7e0f5;
-      --gold:#f6c35d;
-      --orange:#f28c48;
-      --orange-dark:#cc5e17;
-      --pink:#efc0cb;
-      --blue:#60a5fa;
-      --green:#4ade80;
-      --red:#f87171;
-      --yellow:#facc15;
-      --shadow:0 18px 40px rgba(0,0,0,.32);
+      --text:#f6f8ff;
+      --muted:#d8e1f4;
+      --gold:#f6c353;
+      --orange:#f39a52;
+      --orange-deep:#cf6f20;
+      --pink:#efc1cb;
+      --cream:#f3dfd8;
+      --red:#ef5c6c;
+      --blue:#4d8dff;
+      --green:#36c76a;
+      --yellow:#f2c94c;
+      --purple:#9b59ff;
+      --shadow:0 18px 40px rgba(0,0,0,.28);
     }
 
     body{
@@ -32,9 +34,9 @@
       font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;
       color:var(--text);
       background:
-        radial-gradient(circle at 10% 10%, rgba(255,255,255,.06) 1px, transparent 1.5px) 0 0/120px 120px,
-        radial-gradient(circle at 80% 20%, rgba(255,255,255,.05) 1px, transparent 1.5px) 0 0/180px 180px,
-        linear-gradient(180deg,#1a4620 0%, #2e6d33 100%);
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,.06) 1px, transparent 1.6px) 0 0/120px 120px,
+        radial-gradient(circle at 80% 40%, rgba(255,255,255,.05) 1px, transparent 1.6px) 0 0/180px 180px,
+        linear-gradient(180deg,var(--bg-green-1) 0%, var(--bg-green-2) 100%);
       overflow-x:hidden;
     }
 
@@ -42,7 +44,7 @@
       min-height:100vh;
       display:none;
       padding:24px;
-      animation:fadeIn .25s ease;
+      animation:fadeIn .26s ease;
     }
 
     .screen.active{
@@ -51,48 +53,98 @@
       justify-content:center;
     }
 
+    .hidden{ display:none !important; }
+
     @keyframes fadeIn{
-      from{opacity:0; transform:translateY(8px);}
-      to{opacity:1; transform:translateY(0);}
+      from{ opacity:0; transform:translateY(8px); }
+      to{ opacity:1; transform:translateY(0); }
     }
 
     @keyframes floaty{
-      0%,100%{transform:translateY(0);}
-      50%{transform:translateY(-6px);}
+      0%,100%{ transform:translateY(0); }
+      50%{ transform:translateY(-5px); }
     }
 
-    @keyframes pulseBtn{
-      0%,100%{transform:scale(1);}
-      50%{transform:scale(1.04);}
+    @keyframes pulsePlay{
+      0%,100%{ transform:scale(1); }
+      50%{ transform:scale(1.04); }
     }
 
     @keyframes diceShake{
-      0%{transform:rotate(0deg) scale(1);}
-      20%{transform:rotate(-10deg) scale(1.08);}
-      40%{transform:rotate(10deg) scale(.98);}
-      60%{transform:rotate(-8deg) scale(1.08);}
-      80%{transform:rotate(8deg) scale(.98);}
-      100%{transform:rotate(0deg) scale(1);}
+      0%{ transform:rotate(0deg) scale(1); }
+      20%{ transform:rotate(-10deg) scale(1.08); }
+      40%{ transform:rotate(10deg) scale(.98); }
+      60%{ transform:rotate(-8deg) scale(1.08); }
+      80%{ transform:rotate(8deg) scale(.98); }
+      100%{ transform:rotate(0deg) scale(1); }
     }
 
-    .hidden{display:none!important;}
-
-    /* 首頁 */
-    .hero-wrap{
-      width:min(1100px,100%);
+    .btn{
+      border:none;
+      border-radius:16px;
+      padding:14px 26px;
+      cursor:pointer;
+      font:inherit;
+      font-weight:900;
+      color:#111827;
+      background:linear-gradient(180deg,#f9d48f 0%, #e0ac4f 100%);
+      box-shadow:0 8px 0 #8b5c16;
+      transition:.15s ease;
     }
 
-    .hero-panel{
+    .btn:hover{ transform:translateY(-1px); }
+    .btn:active{
+      transform:translateY(4px);
+      box-shadow:0 4px 0 rgba(0,0,0,.25);
+    }
+
+    .btn.secondary{
+      color:white;
+      background:linear-gradient(180deg,#ff7288 0%, #dc4b69 100%);
+      box-shadow:0 8px 0 #7e2037;
+    }
+
+    .btn.ghost{
+      color:white;
+      background:linear-gradient(180deg,#77b1ff 0%, #3d73d8 100%);
+      box-shadow:0 8px 0 #1f407f;
+    }
+
+    .btn.success{
+      color:white;
+      background:linear-gradient(180deg,#43dc7f 0%, #1ea557 100%);
+      box-shadow:0 8px 0 #145e35;
+    }
+
+    .btn.danger{
+      color:white;
+      background:linear-gradient(180deg,#ff7c7c 0%, #d64949 100%);
+      box-shadow:0 8px 0 #7b2020;
+    }
+
+    /* ===== 首頁 ===== */
+    .cover-wrap{
+      width:min(1400px,100%);
+    }
+
+    .cover{
       position:relative;
-      min-height:700px;
+      min-height:760px;
+      border-radius:30px;
       overflow:hidden;
-      border-radius:28px;
-      background:
-        radial-gradient(circle at 20% 20%, rgba(255,255,255,.06) 0 2px, transparent 2px 100%) 0 0/120px 120px,
-        linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.16)),
-        linear-gradient(180deg,#4d922d 0%, #2e6d21 100%);
-      border:1px solid rgba(255,255,255,.14);
       box-shadow:var(--shadow);
+      border:1px solid rgba(255,255,255,.12);
+      background:
+        linear-gradient(0deg, rgba(0,0,0,.08), rgba(0,0,0,.08)),
+        repeating-linear-gradient(
+          -8deg,
+          var(--pink) 0px,
+          var(--pink) 115px,
+          #f49249 115px,
+          #f49249 230px,
+          var(--cream) 230px,
+          var(--cream) 345px
+        );
       display:flex;
       align-items:center;
       justify-content:center;
@@ -100,87 +152,95 @@
       padding:40px 24px;
     }
 
-    .grass-overlay{
+    .cover::after{
+      content:"";
       position:absolute;
       inset:0;
-      background:
-        radial-gradient(circle at 15% 30%, rgba(255,255,255,.08), transparent 22%),
-        radial-gradient(circle at 80% 20%, rgba(255,255,255,.06), transparent 20%),
-        radial-gradient(circle at 70% 80%, rgba(255,255,255,.06), transparent 18%);
+      background:rgba(255,255,255,.06);
       pointer-events:none;
     }
 
-    .hero-deco{
+    .cover-ladder,
+    .cover-snake{
       position:absolute;
-      font-size:120px;
-      filter:drop-shadow(0 10px 14px rgba(0,0,0,.22));
       user-select:none;
       pointer-events:none;
+      filter:drop-shadow(0 12px 18px rgba(0,0,0,.18));
+      z-index:1;
     }
 
-    .hero-deco.sn1{left:50px; top:50px; transform:rotate(-18deg);}
-    .hero-deco.sn2{right:70px; top:110px; transform:rotate(16deg);}
-    .hero-deco.sn3{left:120px; bottom:60px; transform:rotate(18deg);}
-    .hero-deco.l1{left:70px; top:180px; transform:rotate(-18deg); font-size:100px;}
-    .hero-deco.l2{right:60px; top:180px; transform:rotate(20deg); font-size:100px;}
+    .cover-ladder{
+      font-size:140px;
+    }
 
-    .hero-content{
+    .cover-snake{
+      font-size:150px;
+    }
+
+    .ladder-a{ left:60px; top:80px; transform:rotate(-18deg); }
+    .ladder-b{ right:70px; top:120px; transform:rotate(18deg); }
+    .ladder-c{ left:40px; bottom:70px; transform:rotate(10deg); }
+
+    .snake-a{ left:20px; top:160px; transform:rotate(8deg); }
+    .snake-b{ right:40px; top:180px; transform:rotate(-8deg); }
+    .snake-c{ left:250px; bottom:20px; transform:rotate(18deg); }
+    .snake-d{ right:130px; bottom:40px; transform:rotate(-18deg); }
+
+    .cover-content{
       position:relative;
       z-index:2;
     }
 
-    .hero-title{
-      font-size:clamp(60px,8vw,110px);
+    .cover-title{
+      font-size:clamp(90px,10vw,150px);
       font-weight:900;
+      color:#111;
       line-height:1;
-      color:#ffbe2e;
+      letter-spacing:4px;
+      margin-bottom:18px;
       text-shadow:
-        0 6px 0 rgba(116,59,0,.55),
-        0 14px 24px rgba(0,0,0,.25);
-      letter-spacing:2px;
-      margin-bottom:12px;
+        0 0 0 #fff,
+        -6px -6px 0 #fff,
+        6px -6px 0 #fff,
+        -6px 6px 0 #fff,
+        6px 6px 0 #fff;
     }
 
-    .hero-subtitle{
-      font-size:24px;
+    .cover-subtitle{
+      font-size:34px;
       font-weight:900;
-      letter-spacing:1px;
-      text-shadow:0 3px 12px rgba(0,0,0,.35);
-      margin-bottom:44px;
+      color:#111;
+      margin-bottom:48px;
+      text-shadow:
+        -3px -3px 0 #fff,
+        3px -3px 0 #fff,
+        -3px 3px 0 #fff,
+        3px 3px 0 #fff;
     }
 
     .play-btn{
-      width:130px;
-      height:130px;
-      border-radius:28px;
-      border:none;
+      min-width:260px;
+      border-radius:40px;
+      padding:18px 36px;
+      border:6px solid #111;
       cursor:pointer;
-      font-size:58px;
-      color:white;
-      background:linear-gradient(180deg,#ffb15d 0%, #f28c48 100%);
-      box-shadow:0 12px 0 var(--orange-dark), 0 20px 30px rgba(0,0,0,.25);
-      animation:pulseBtn 2s ease-in-out infinite;
+      background:linear-gradient(180deg,#ffffff 0%, #ececec 100%);
+      color:#111;
+      font-size:46px;
+      font-weight:900;
+      box-shadow:0 12px 0 rgba(0,0,0,.22);
+      animation:pulsePlay 2s ease-in-out infinite;
     }
 
-    .play-btn:active{
-      transform:translateY(6px);
-      box-shadow:0 6px 0 var(--orange-dark), 0 12px 20px rgba(0,0,0,.25);
-    }
-
-    /* 共用卡片 */
+    /* ===== 共用卡片 ===== */
     .card{
+      width:min(980px,100%);
       background:var(--panel);
       border:1px solid var(--line);
+      border-radius:28px;
       box-shadow:var(--shadow);
       backdrop-filter:blur(8px);
-      border-radius:28px;
-      padding:28px;
-    }
-
-    /* 選玩家頁 */
-    .select-wrap,
-    .name-wrap{
-      width:min(920px,100%);
+      padding:30px;
     }
 
     .title{
@@ -192,18 +252,25 @@
     }
 
     .subtitle{
-      text-align:center;
       color:var(--muted);
+      text-align:center;
       line-height:1.8;
       margin-bottom:24px;
     }
 
-    .player-choice-grid{
+    .actions{
+      display:flex;
+      gap:12px;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-top:24px;
+    }
+
+    /* ===== 玩家數量 ===== */
+    .choice-grid{
       display:grid;
       grid-template-columns:repeat(3,1fr);
       gap:18px;
-      max-width:760px;
-      margin:0 auto;
     }
 
     .choice-btn{
@@ -212,11 +279,11 @@
       cursor:pointer;
       padding:28px 18px;
       color:white;
-      background:linear-gradient(180deg,#ffa565 0%, #f07a32 100%);
-      box-shadow:0 10px 0 #b55116;
+      background:linear-gradient(180deg,#f7a261 0%, #ed7f37 100%);
+      box-shadow:0 10px 0 #b4551a;
       font:inherit;
       font-weight:900;
-      transition:.16s ease;
+      transition:.15s ease;
     }
 
     .choice-btn:hover{
@@ -225,75 +292,26 @@
     }
 
     .choice-btn.selected{
-      outline:4px solid rgba(255,255,255,.28);
+      outline:4px solid rgba(255,255,255,.25);
       transform:translateY(-2px);
     }
 
     .choice-icon{
-      font-size:42px;
-      margin-bottom:8px;
+      font-size:40px;
+      margin-bottom:10px;
     }
 
     .choice-label{
-      font-size:28px;
+      font-size:30px;
       margin-bottom:6px;
     }
 
     .choice-sub{
       font-size:14px;
-      color:#fff6ee;
+      color:#fff5ed;
     }
 
-    .actions{
-      display:flex;
-      gap:12px;
-      justify-content:center;
-      margin-top:24px;
-      flex-wrap:wrap;
-    }
-
-    .btn{
-      border:none;
-      border-radius:16px;
-      padding:14px 26px;
-      cursor:pointer;
-      font:inherit;
-      font-weight:900;
-      color:#111827;
-      background:linear-gradient(180deg,#f7d28e 0%, #e2ab4b 100%);
-      box-shadow:0 8px 0 #8a5b13;
-    }
-
-    .btn.secondary{
-      color:white;
-      background:linear-gradient(180deg,#ff7187 0%, #dc4b69 100%);
-      box-shadow:0 8px 0 #7c1f35;
-    }
-
-    .btn.ghost{
-      color:white;
-      background:linear-gradient(180deg,#76b0ff 0%, #3e73d8 100%);
-      box-shadow:0 8px 0 #1f3b7f;
-    }
-
-    .btn.success{
-      color:white;
-      background:linear-gradient(180deg,#43dc7f 0%, #1da356 100%);
-      box-shadow:0 8px 0 #155e36;
-    }
-
-    .btn.danger{
-      color:white;
-      background:linear-gradient(180deg,#ff7a7a 0%, #d64545 100%);
-      box-shadow:0 8px 0 #7a2020;
-    }
-
-    .btn:active{
-      transform:translateY(4px);
-      box-shadow:0 4px 0 rgba(0,0,0,.25);
-    }
-
-    /* 姓名頁 */
+    /* ===== 姓名頁 ===== */
     .name-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -324,17 +342,17 @@
       color:#d9e1f6;
     }
 
-    /* 遊戲頁 */
+    /* ===== 遊戲頁 ===== */
     .game-root{
-      width:min(1450px,100%);
+      width:min(1500px,100%);
     }
 
     .game-shell{
       background:var(--panel);
       border:1px solid var(--line);
+      border-radius:30px;
       box-shadow:var(--shadow);
       backdrop-filter:blur(8px);
-      border-radius:28px;
       padding:22px;
     }
 
@@ -344,7 +362,7 @@
       align-items:center;
       gap:16px;
       flex-wrap:wrap;
-      margin-bottom:18px;
+      margin-bottom:20px;
     }
 
     .game-title{
@@ -358,12 +376,12 @@
       border-radius:999px;
       background:rgba(255,255,255,.08);
       border:1px solid var(--line);
-      font-weight:800;
+      font-weight:900;
     }
 
     .game-layout{
       display:grid;
-      grid-template-columns:minmax(760px, 2fr) minmax(260px, 1fr);
+      grid-template-columns:minmax(760px, 2fr) minmax(300px, 1fr);
       gap:22px;
       align-items:start;
     }
@@ -375,15 +393,14 @@
 
     .board-shell{
       position:relative;
-      width:670px;
-      height:670px;
-      border-radius:30px;
+      width:720px;
+      height:720px;
       padding:18px;
-      background:
-        linear-gradient(180deg,#6b4b20 0%, #4e3416 100%);
+      border-radius:34px;
+      background:linear-gradient(180deg,#8a5a1f 0%, #653f15 100%);
       box-shadow:
-        inset 0 0 0 4px rgba(255,255,255,.05),
-        0 20px 36px rgba(0,0,0,.28);
+        inset 0 0 0 6px rgba(255,255,255,.05),
+        0 20px 34px rgba(0,0,0,.28);
     }
 
     .board{
@@ -400,42 +417,42 @@
     .cell{
       position:relative;
       border-radius:18px;
-      padding:10px;
+      padding:12px;
       display:flex;
       flex-direction:column;
       justify-content:space-between;
-      border:1px solid rgba(255,255,255,.15);
+      border:1px solid rgba(255,255,255,.14);
       box-shadow:
-        inset 2px 2px 6px rgba(255,255,255,.08),
-        inset -6px -6px 12px rgba(0,0,0,.18),
-        0 8px 14px rgba(0,0,0,.12);
+        inset 2px 2px 8px rgba(255,255,255,.08),
+        inset -6px -6px 12px rgba(0,0,0,.16),
+        0 8px 16px rgba(0,0,0,.12);
       overflow:hidden;
     }
 
-    .cell.start{background:linear-gradient(145deg,#376bd0,#244f9a);}
-    .cell.finish{background:linear-gradient(145deg,#8741c2,#652d92);}
-    .cell.question{background:linear-gradient(145deg,#b7861e,#8e6512);}
-    .cell.ladder{background:linear-gradient(145deg,#2e9455,#1f7441);}
-    .cell.snake{background:linear-gradient(145deg,#b34365,#842d48);}
-    .cell.special{background:linear-gradient(145deg,#2c8fbb,#1c6d91);}
-    .cell.free{background:linear-gradient(145deg,#546177,#3c475c);}
+    .cell.start{background:linear-gradient(145deg,#2d64d3,#244c9d);}
+    .cell.finish{background:linear-gradient(145deg,#9b56e8,#7a36bf);}
+    .cell.question{background:linear-gradient(145deg,#c28f1b,#9a6d12);}
+    .cell.ladder{background:linear-gradient(145deg,#2ea65a,#23844a);}
+    .cell.snake{background:linear-gradient(145deg,#cc5476,#a63a59);}
+    .cell.special{background:linear-gradient(145deg,#39a1d3,#277ea8);}
+    .cell.free{background:linear-gradient(145deg,#5c6b84,#47546a);}
 
     .cell-number{
-      font-size:28px;
+      font-size:30px;
       font-weight:900;
       line-height:1;
     }
 
     .cell-icon{
       align-self:center;
-      font-size:28px;
+      font-size:30px;
       line-height:1;
     }
 
     .cell-label{
       font-size:12px;
       line-height:1.25;
-      color:#e5efff;
+      color:#ecf3ff;
       min-height:32px;
     }
 
@@ -443,43 +460,32 @@
       position:absolute;
       right:6px;
       bottom:6px;
-      display:flex;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-      gap:6px;
-      max-width:86px;
+      width:76px;
+      display:grid;
+      grid-template-columns:repeat(2, 1fr);
+      gap:4px;
+      justify-items:end;
       z-index:5;
     }
 
     .token{
-      width:42px;
-      height:42px;
+      width:32px;
+      height:32px;
       border-radius:50%;
-      border:3px solid rgba(255,255,255,.95);
+      border:3px solid rgba(255,255,255,.96);
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size:22px;
+      font-size:16px;
       box-shadow:0 8px 16px rgba(0,0,0,.24);
-      cursor:default;
-      transition:.16s ease;
       animation:floaty 2.1s ease-in-out infinite;
+      transition:.15s ease;
     }
 
-    .token.active{
-      cursor:pointer;
-      transform:scale(1.08);
-      box-shadow:0 0 0 5px rgba(255,255,255,.12), 0 10px 20px rgba(0,0,0,.28);
-    }
-
-    .token.active:hover{
-      transform:scale(1.14);
-    }
-
-    .token.p1{background:var(--red);}
-    .token.p2{background:var(--blue);}
-    .token.p3{background:var(--green);}
-    .token.p4{background:var(--yellow);}
+    .token.p1{ background:var(--red); }
+    .token.p2{ background:var(--blue); }
+    .token.p3{ background:var(--green); }
+    .token.p4{ background:var(--yellow); }
 
     .board-svg{
       position:absolute;
@@ -496,7 +502,7 @@
     }
 
     .info-card{
-      background:rgba(14,22,40,.88);
+      background:var(--panel-soft);
       border:1px solid var(--line);
       border-radius:20px;
       padding:16px;
@@ -525,47 +531,28 @@
 
     .helper{
       color:var(--muted);
-      line-height:1.75;
+      line-height:1.8;
       font-size:14px;
     }
 
     .log{
-      max-height:280px;
+      max-height:240px;
       overflow-y:auto;
       display:grid;
       gap:8px;
     }
 
-    .dice-fab{
-      position:absolute;
-      right:24px;
-      bottom:24px;
-      width:84px;
-      height:84px;
-      border:none;
-      border-radius:22px;
-      cursor:pointer;
-      font-size:34px;
-      color:white;
-      background:linear-gradient(180deg,#f8c96f 0%, #d9992f 100%);
-      box-shadow:0 10px 0 #7f5717, 0 18px 24px rgba(0,0,0,.24);
-      z-index:8;
-      transition:.16s ease;
+    .dice-panel-btn{
+      width:100%;
+      padding:18px 16px;
+      font-size:28px;
     }
 
-    .dice-fab:hover{
-      transform:translateY(-2px);
-    }
-
-    .dice-fab:active{
-      transform:translateY(4px);
-      box-shadow:0 4px 0 #7f5717, 0 10px 18px rgba(0,0,0,.24);
-    }
-
+    /* ===== Modal ===== */
     .modal{
       position:fixed;
       inset:0;
-      background:rgba(2,6,23,.7);
+      background:rgba(2,6,23,.72);
       display:flex;
       align-items:center;
       justify-content:center;
@@ -583,12 +570,12 @@
 
     .modal-card{
       width:100%;
-      max-width:660px;
+      max-width:680px;
       background:var(--panel);
       border:1px solid var(--line);
+      border-radius:28px;
       box-shadow:var(--shadow);
       backdrop-filter:blur(8px);
-      border-radius:26px;
       padding:28px;
       text-align:center;
     }
@@ -597,7 +584,7 @@
       display:inline-block;
       padding:6px 12px;
       border-radius:999px;
-      background:rgba(255,255,255,.10);
+      background:rgba(255,255,255,.1);
       border:1px solid var(--line);
       font-size:12px;
       font-weight:900;
@@ -670,21 +657,22 @@
         grid-template-columns:1fr;
       }
       .board-shell{
-        width:min(670px,100%);
+        width:min(720px,100%);
         height:auto;
         aspect-ratio:1/1;
       }
     }
 
     @media (max-width:760px){
-      .player-choice-grid,
-      .name-grid,
-      .form-grid{
+      .choice-grid,
+      .name-grid{
         grid-template-columns:1fr;
       }
-      .hero-main-title,
-      .hero-title{
-        font-size:58px;
+      .cover-title{
+        font-size:72px;
+      }
+      .cover-subtitle{
+        font-size:24px;
       }
       .game-title{
         font-size:22px;
@@ -701,66 +689,78 @@
       .dice-box{
         font-size:64px;
       }
+      .cover-ladder,
+      .cover-snake{
+        font-size:90px;
+      }
     }
   </style>
 </head>
 <body>
   <!-- 首頁 -->
   <section id="startScreen" class="screen active">
-    <div class="hero-wrap">
-      <div class="hero-panel">
-        <div class="grass-overlay"></div>
-        <div class="hero-content">
-          <div class="hero-title">蛇梯</div>
-          <div class="hero-subtitle">職場華語（二）紀錄與報告任務蛇梯遊戲</div>
-          <button class="play-btn" id="playBtn">▶</button>
+    <div class="cover-wrap">
+      <div class="cover">
+        <div class="cover-ladder ladder-a">🪜</div>
+        <div class="cover-ladder ladder-b">🪜</div>
+        <div class="cover-ladder ladder-c">🪜</div>
+
+        <div class="cover-snake snake-a">🐍</div>
+        <div class="cover-snake snake-b">🐍</div>
+        <div class="cover-snake snake-c">🐍</div>
+        <div class="cover-snake snake-d">🐍</div>
+
+        <div class="cover-content">
+          <div class="cover-title">蛇梯</div>
+          <div class="cover-subtitle">職場華語（二）紀錄與報告任務蛇梯遊戲</div>
+          <button class="play-btn" id="playBtn">開始</button>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 選玩家數 -->
+  <!-- 玩家數量 -->
   <section id="selectScreen" class="screen">
-    <div class="select-wrap">
-      <div class="card">
-        <div class="title">選擇玩家人數</div>
-        <div class="subtitle">請先選擇本次參與遊戲的玩家數量。</div>
-        <div class="player-choice-grid">
-          <button class="choice-btn" data-count="2">
-            <div class="choice-icon">👥</div>
-            <div class="choice-label">2 人</div>
-            <div class="choice-sub">雙人對戰</div>
-          </button>
-          <button class="choice-btn" data-count="3">
-            <div class="choice-icon">👮👮👮</div>
-            <div class="choice-label">3 人</div>
-            <div class="choice-sub">三人遊戲</div>
-          </button>
-          <button class="choice-btn" data-count="4">
-            <div class="choice-icon">👮👮👮👮</div>
-            <div class="choice-label">4 人</div>
-            <div class="choice-sub">完整模式</div>
-          </button>
-        </div>
-        <div class="actions">
-          <button class="btn secondary" id="backHome2Btn">回首頁</button>
-          <button class="btn" id="goNameBtn">下一步</button>
-        </div>
+    <div class="card">
+      <div class="title">選擇玩家人數</div>
+      <div class="subtitle">請先選擇本次參與遊戲的玩家數量。</div>
+
+      <div class="choice-grid">
+        <button class="choice-btn" data-count="2">
+          <div class="choice-icon">👮👮</div>
+          <div class="choice-label">2 人</div>
+          <div class="choice-sub">雙人對戰</div>
+        </button>
+        <button class="choice-btn" data-count="3">
+          <div class="choice-icon">👮👮👮</div>
+          <div class="choice-label">3 人</div>
+          <div class="choice-sub">三人遊戲</div>
+        </button>
+        <button class="choice-btn" data-count="4">
+          <div class="choice-icon">👮👮👮👮</div>
+          <div class="choice-label">4 人</div>
+          <div class="choice-sub">完整模式</div>
+        </button>
+      </div>
+
+      <div class="actions">
+        <button class="btn secondary" id="backHomeBtn">回首頁</button>
+        <button class="btn" id="goNameBtn">下一步</button>
       </div>
     </div>
   </section>
 
   <!-- 玩家姓名 -->
   <section id="nameScreen" class="screen">
-    <div class="name-wrap">
-      <div class="card">
-        <div class="title">輸入玩家名稱</div>
-        <div class="subtitle">請輸入每位玩家的名字，完成後進入遊戲。</div>
-        <div id="nameFields" class="name-grid"></div>
-        <div class="actions">
-          <button class="btn secondary" id="backSelectBtn">返回上一步</button>
-          <button class="btn" id="enterGameBtn">進入遊戲</button>
-        </div>
+    <div class="card">
+      <div class="title">輸入玩家名稱</div>
+      <div class="subtitle">請輸入每位玩家的名字，完成後進入遊戲。</div>
+
+      <div id="nameFields" class="name-grid"></div>
+
+      <div class="actions">
+        <button class="btn secondary" id="backSelectBtn">返回上一步</button>
+        <button class="btn" id="enterGameBtn">進入遊戲</button>
       </div>
     </div>
   </section>
@@ -779,62 +779,60 @@
             <div class="board-shell">
               <svg class="board-svg" viewBox="0 0 600 600" preserveAspectRatio="none">
                 <!-- 梯子 -->
-                <g stroke="#8fb1ff" stroke-width="8" stroke-linecap="round">
-                  <line x1="302" y1="540" x2="418" y2="418"/>
-                  <line x1="330" y1="560" x2="446" y2="438"/>
-                  <line x1="310" y1="530" x2="338" y2="560"/>
-                  <line x1="334" y1="505" x2="362" y2="535"/>
-                  <line x1="358" y1="480" x2="386" y2="510"/>
-                  <line x1="382" y1="455" x2="410" y2="485"/>
-                  <line x1="406" y1="430" x2="434" y2="460"/>
+                <g stroke="#9ec2ff" stroke-width="8" stroke-linecap="round">
+                  <!-- 3 -> 8 -->
+                  <line x1="306" y1="542" x2="418" y2="420"/>
+                  <line x1="334" y1="560" x2="446" y2="438"/>
+                  <line x1="314" y1="532" x2="342" y2="560"/>
+                  <line x1="338" y1="507" x2="366" y2="535"/>
+                  <line x1="362" y1="482" x2="390" y2="510"/>
+                  <line x1="386" y1="457" x2="414" y2="485"/>
                 </g>
 
-                <g stroke="#8fb1ff" stroke-width="8" stroke-linecap="round">
+                <g stroke="#9ec2ff" stroke-width="8" stroke-linecap="round">
+                  <!-- 8 -> 14 -->
                   <line x1="186" y1="420" x2="304" y2="300"/>
-                  <line x1="214" y1="440" x2="332" y2="320"/>
-                  <line x1="194" y1="410" x2="222" y2="440"/>
-                  <line x1="218" y1="385" x2="246" y2="415"/>
-                  <line x1="242" y1="360" x2="270" y2="390"/>
-                  <line x1="266" y1="335" x2="294" y2="365"/>
+                  <line x1="214" y1="438" x2="332" y2="318"/>
+                  <line x1="194" y1="410" x2="222" y2="438"/>
+                  <line x1="218" y1="385" x2="246" y2="413"/>
+                  <line x1="242" y1="360" x2="270" y2="388"/>
+                  <line x1="266" y1="335" x2="294" y2="363"/>
                 </g>
 
-                <g stroke="#8fb1ff" stroke-width="8" stroke-linecap="round">
+                <g stroke="#9ec2ff" stroke-width="8" stroke-linecap="round">
+                  <!-- 14 -> 20 -->
                   <line x1="418" y1="300" x2="540" y2="180"/>
-                  <line x1="446" y1="320" x2="568" y2="200"/>
-                  <line x1="426" y1="290" x2="454" y2="320"/>
-                  <line x1="450" y1="265" x2="478" y2="295"/>
-                  <line x1="474" y1="240" x2="502" y2="270"/>
-                  <line x1="498" y1="215" x2="526" y2="245"/>
-                  <line x1="522" y1="190" x2="550" y2="220"/>
+                  <line x1="446" y1="318" x2="568" y2="198"/>
+                  <line x1="426" y1="290" x2="454" y2="318"/>
+                  <line x1="450" y1="265" x2="478" y2="293"/>
+                  <line x1="474" y1="240" x2="502" y2="268"/>
+                  <line x1="498" y1="215" x2="526" y2="243"/>
                 </g>
 
                 <!-- 蛇 -->
-                <path d="M186 300
-                         C120 320, 120 400, 188 420
-                         C250 438, 250 500, 186 540"
-                      fill="none" stroke="#ff6a8e" stroke-width="18" stroke-linecap="round"/>
-                <circle cx="182" cy="295" r="18" fill="#ff6a8e"/>
-                <circle cx="176" cy="290" r="3" fill="#3a1020"/>
-                <circle cx="188" cy="290" r="3" fill="#3a1020"/>
+                <!-- 12 -> 6 -->
+                <path d="M186 300 C120 320, 120 395, 188 420 C248 438, 248 498, 186 540"
+                      fill="none" stroke="#ff7093" stroke-width="18" stroke-linecap="round"/>
+                <circle cx="182" cy="295" r="18" fill="#ff7093"/>
+                <circle cx="176" cy="289" r="3" fill="#421321"/>
+                <circle cx="188" cy="289" r="3" fill="#421321"/>
 
-                <path d="M422 180
-                         C362 206, 360 255, 420 300
-                         C472 336, 472 388, 420 420"
+                <!-- 19 -> 10 -->
+                <path d="M422 180 C364 208, 362 252, 420 300 C472 338, 470 386, 420 420"
                       fill="none" stroke="#ffd84d" stroke-width="18" stroke-linecap="round"/>
                 <circle cx="420" cy="174" r="18" fill="#ffd84d"/>
-                <circle cx="414" cy="169" r="3" fill="#3a3a10"/>
-                <circle cx="426" cy="169" r="3" fill="#3a3a10"/>
+                <circle cx="414" cy="168" r="3" fill="#463d10"/>
+                <circle cx="426" cy="168" r="3" fill="#463d10"/>
 
-                <path d="M540 180
-                         C590 150, 590 110, 538 60"
+                <!-- 23 -> 16 -->
+                <path d="M540 180 C590 154, 588 112, 538 60"
                       fill="none" stroke="#b776ff" stroke-width="18" stroke-linecap="round"/>
                 <circle cx="540" cy="183" r="18" fill="#b776ff"/>
-                <circle cx="534" cy="178" r="3" fill="#2d143d"/>
-                <circle cx="546" cy="178" r="3" fill="#2d143d"/>
+                <circle cx="534" cy="177" r="3" fill="#311543"/>
+                <circle cx="546" cy="177" r="3" fill="#311543"/>
               </svg>
 
               <div id="board" class="board"></div>
-              <button id="diceBtn" class="dice-fab">🎲</button>
             </div>
           </div>
 
@@ -847,9 +845,14 @@
             <div class="info-card">
               <h3>操作方式</h3>
               <div class="helper">
-                右下角骰子是目前玩家的操作按鈕。<br>
-                按下後會先顯示擲骰動畫，再依序進入蛇、梯子、問題或特殊格視窗。
+                請按右側「擲骰子」按鈕開始本回合。<br>
+                系統會先顯示擲骰動畫，再進入蛇、梯子、問題或特殊格視窗。
               </div>
+            </div>
+
+            <div class="info-card">
+              <h3>遊戲操作</h3>
+              <button id="diceBtn" class="btn dice-panel-btn">🎲 擲骰子</button>
             </div>
 
             <div class="info-card">
@@ -859,7 +862,7 @@
 
             <div class="info-card">
               <div class="actions" style="margin-top:0;">
-                <button class="btn secondary" id="backSetupBtn">返回設定</button>
+                <button class="btn secondary" id="backNameBtn">返回設定</button>
                 <button class="btn ghost" id="restartBtn">重新開始</button>
               </div>
             </div>
@@ -869,7 +872,7 @@
     </div>
   </section>
 
-  <!-- modal -->
+  <!-- 視窗 -->
   <div id="modal" class="modal">
     <div class="modal-card">
       <div id="modalBadge" class="modal-badge">事件</div>
@@ -911,7 +914,7 @@
     const ladders = { 3: 8, 8: 14, 14: 20 };
     const snakes = { 12: 6, 19: 10, 23: 16 };
     const specials = {
-      6: { type: "rollAgain", text: "你抽到特殊格：再擲一次。", note: "同一位玩家可以再按一次右下角骰子。" },
+      6:  { type: "rollAgain", text: "你抽到特殊格：再擲一次。", note: "同一位玩家可以再按一次擲骰子。" },
       10: { type: "forward2", text: "你抽到特殊格：前進兩格。", note: "系統會自動幫你前進兩格。" },
       16: { type: "back1", text: "你抽到特殊格：後退一格。", note: "系統會自動幫你後退一格。" },
       20: { type: "dialogue", text: "請和同學用兩句話做簡短對話。", note: "完成對話後再按按鈕。" }
@@ -926,11 +929,11 @@
     const gameScreen = document.getElementById("gameScreen");
 
     const playBtn = document.getElementById("playBtn");
-    const backHome2Btn = document.getElementById("backHome2Btn");
+    const backHomeBtn = document.getElementById("backHomeBtn");
     const goNameBtn = document.getElementById("goNameBtn");
     const backSelectBtn = document.getElementById("backSelectBtn");
     const enterGameBtn = document.getElementById("enterGameBtn");
-    const backSetupBtn = document.getElementById("backSetupBtn");
+    const backNameBtn = document.getElementById("backNameBtn");
     const restartBtn = document.getElementById("restartBtn");
     const diceBtn = document.getElementById("diceBtn");
 
@@ -962,7 +965,7 @@
       target.classList.add("active");
     }
 
-    function buildPlayerChoiceSelection(){
+    function updateChoiceSelection(){
       document.querySelectorAll(".choice-btn").forEach(btn => {
         btn.classList.toggle("selected", Number(btn.dataset.count) === selectedPlayerCount);
       });
@@ -1006,6 +1009,7 @@
       boardOrder.forEach(num => {
         const type = getCellType(num);
         const display = getCellDisplay(num);
+
         const cell = document.createElement("div");
         cell.className = `cell ${type}`;
         cell.dataset.num = num;
@@ -1035,13 +1039,13 @@
     function renderTokens(){
       document.querySelectorAll(".token-layer").forEach(layer => layer.innerHTML = "");
 
-      players.forEach((player, index) => {
+      players.forEach(player => {
         const cell = [...document.querySelectorAll(".cell")].find(c => Number(c.dataset.num) === player.pos);
         if(!cell) return;
 
         const layer = cell.querySelector(".token-layer");
         const token = document.createElement("div");
-        token.className = `token ${player.color} ${index === currentPlayer && !modalLocked && !gameOver ? "active" : ""}`;
+        token.className = `token ${player.color}`;
         token.innerHTML = player.avatar;
         token.title = player.name;
         layer.appendChild(token);
@@ -1056,6 +1060,7 @@
         item.innerHTML = `${player.avatar} <strong>${player.name}</strong>：第 ${player.pos} 格 ${index === currentPlayer && !gameOver ? "（目前玩家）" : ""}`;
         playerListEl.appendChild(item);
       });
+
       currentTurnText.textContent = gameOver ? "遊戲結束" : (players[currentPlayer]?.name || "-");
     }
 
@@ -1066,7 +1071,7 @@
       logEl.prepend(item);
     }
 
-    function openModal({badge, title, subtitle="", dice="🎲", question="", text="", note="", actions=[]}){
+    function openModal({ badge, title, subtitle="", dice="🎲", question="", text="", note="", actions=[] }){
       modalBadge.textContent = badge;
       modalTitle.textContent = title;
       modalSubtitle.textContent = subtitle;
@@ -1101,7 +1106,7 @@
       renderTokens();
     }
 
-    function finishTurn(keepTurn=false){
+    function finishTurn(keepTurn = false){
       closeModal();
       if(gameOver) return;
       if(!keepTurn) nextTurn();
@@ -1137,12 +1142,12 @@
       modalDice.classList.add("rolling");
 
       const interval = setInterval(() => {
-        modalDice.textContent = faces[Math.floor(Math.random()*6)];
+        modalDice.textContent = faces[Math.floor(Math.random() * 6)];
         count++;
         if(count >= 14){
           clearInterval(interval);
           modalDice.classList.remove("rolling");
-          const dice = Math.floor(Math.random()*6) + 1;
+          const dice = Math.floor(Math.random() * 6) + 1;
           modalDice.textContent = faces[dice - 1];
           setTimeout(() => executeRoll(dice), 450);
         }
@@ -1426,12 +1431,16 @@
       addLog("遊戲重新開始。");
     }
 
-    // events
+    // 事件
     playBtn.addEventListener("click", () => showScreen(selectScreen));
-    backHome2Btn.addEventListener("click", () => showScreen(startScreen));
+    backHomeBtn.addEventListener("click", () => showScreen(startScreen));
     backSelectBtn.addEventListener("click", () => showScreen(selectScreen));
+    goNameBtn.addEventListener("click", () => {
+      buildNameFields();
+      showScreen(nameScreen);
+    });
     enterGameBtn.addEventListener("click", startGame);
-    backSetupBtn.addEventListener("click", () => {
+    backNameBtn.addEventListener("click", () => {
       closeModal();
       showScreen(nameScreen);
     });
@@ -1441,17 +1450,12 @@
     document.querySelectorAll(".choice-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         selectedPlayerCount = Number(btn.dataset.count);
-        buildPlayerChoiceSelection();
+        updateChoiceSelection();
       });
     });
 
-    goNameBtn.addEventListener("click", () => {
-      buildNameFields();
-      showScreen(nameScreen);
-    });
-
-    // init
-    buildPlayerChoiceSelection();
+    // 初始化
+    updateChoiceSelection();
     buildNameFields();
   </script>
 </body>
